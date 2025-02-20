@@ -1,0 +1,167 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Location {
+  id: Int!
+  latitude: Float!
+  longitude: Float!
+  city: String!
+  street: String!
+}
+
+type Owner {
+  id: String!
+  name: String!
+  avatar: String
+}
+
+type BookingModel {
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Deal {
+  id: String!
+  price: Int!
+  fields: JSON!
+  durationRent: DurationRentTypes
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+enum DurationRentTypes {
+  short
+  long
+}
+
+type PropertyDetails {
+  fields: JSON!
+}
+
+type Ad {
+  id: String!
+  description: String!
+  mainPhoto: String!
+  photos: [String!]!
+  adType: AdTypes!
+  propertyType: PropertyTypes!
+  deal: Deal!
+  propertyDetails: PropertyDetails!
+  location: Location!
+  owner: Owner!
+  booking: [BookingModel!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum AdTypes {
+  rent
+  sell
+}
+
+enum PropertyTypes {
+  house
+  apartment
+}
+
+"""A custom scalar that validates and transforms price values"""
+scalar Price
+
+type Query {
+  getAllAds(filters: AdFilterInput): [Ad!]!
+  getAdById(id: ID!): Ad
+}
+
+input AdFilterInput {
+  adType: String
+  propertyType: String
+  propertyDetails: PropertyDetailsFilter
+  deal: DealFilter
+  page: Float = 1
+  limit: Float = 20
+}
+
+input PropertyDetailsFilter {
+  fields: JSON
+}
+
+input DealFilter {
+  fields: JSON
+  price: PriceFilter
+}
+
+input PriceFilter {
+  from: Int!
+  to: Int!
+}
+
+type Mutation {
+  createAd(createAdInput: CreateAdInput!): Ad!
+  updateAd(id: ID!, updatedFields: UpdateAdInput!): Ad!
+}
+
+input CreateAdInput {
+  adType: String!
+  propertyType: String!
+  propertyDetails: PropertyDetailsInput!
+  deal: DealInput!
+  description: String!
+  features: [String!]!
+  mainPhoto: String!
+  photos: [String!]!
+  location: LocationDto!
+}
+
+input PropertyDetailsInput {
+  fields: JSONObject!
+}
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+input DealInput {
+  price: Price!
+  fields: JSONObject!
+  durationRent: String
+}
+
+input LocationDto {
+  latitude: Float!
+  longitude: Float!
+  city: String!
+  street: String!
+}
+
+input UpdateAdInput {
+  description: String
+  mainPhoto: String
+  photos: [String!]
+  adType: AdTypes
+  propertyType: PropertyTypes
+  location: LocationDto
+  deal: UpdateDealInput
+  propertyDetails: UpdatePropertyDetailsInput
+}
+
+input UpdateDealInput {
+  price: Price
+  fields: JSONObject
+  durationRent: String
+}
+
+input UpdatePropertyDetailsInput {
+  fields: JSONObject
+}

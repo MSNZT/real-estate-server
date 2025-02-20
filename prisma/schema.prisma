@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+
+  email    String
+  password String?
+  provider String?
+  name     String
+  avatar   String?
+  roles    UserRoles @default(USER)
+
+  ads Ad[]
+
+  reviews Review?
+
+  booking Booking[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+model Ad {
+  id String @id @default(cuid())
+
+  description String
+
+  mainPhoto String
+  photos    String[]
+
+  adType       AdTypes
+  propertyType PropertyTypes
+  deal         Deal?
+  booking      Booking[]
+
+  propertyDetails PropertyDetails?
+  features        String[]
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId Int
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([id, ownerId])
+  @@map("ad")
+}
+
+model PropertyDetails {
+  id String @id @default(cuid())
+
+  ad     Ad     @relation(fields: [adId], references: [id])
+  adId   String @unique
+  fields Json   @db.JsonB
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("property_details")
+}
+
+model Deal {
+  id String @id @default(cuid())
+
+  ad   Ad     @relation(fields: [adId], references: [id])
+  adId String @unique
+
+  price        Int
+  fields       Json
+  durationRent DurationRentTypes?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("deal")
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+
+  ad   Ad     @relation(fields: [adId], references: [id])
+  adId String
+
+  renter   User   @relation(fields: [renterId], references: [id])
+  renterId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("booking")
+}
+
+model Location {
+  id        Int    @id @default(autoincrement())
+  latitude  Float
+  longitude Float
+  city      String
+  street    String
+  ads       Ad[]
+
+  @@unique([latitude, longitude, city, street])
+  @@map("location")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String
+  userId    String?  @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("review")
+}
+
+enum UserRoles {
+  USER
+  ADMIN
+}
+
+enum AdTypes {
+  rent
+  sell
+}
+
+enum PropertyTypes {
+  house
+  apartment
+}
+
+enum PropertyDealTypes {
+  rentApartment
+  rentHouse
+}
+
+enum DurationRentTypes {
+  short
+  long
+}

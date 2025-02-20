@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+
+  email    String
+  password String?
+    provider String?
+      name     String
+  avatar   String?
+    roles    UserRoles @default(USER)
+
+  ads Ad[]
+
+  reviews Review?
+    booking Booking?
+
+      createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+@@map("user")
+}
+
+model Ad {
+  id String @id @default(cuid())
+
+  description String
+  price       Int
+
+  mainPhoto String
+  photos    String[]
+
+  adType       AdTypes
+  propertyType PropertyTypes
+  propertyDeal PropertyDealTypes
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId Int
+  owner      User     @relation(fields: [ownerId], references: [id])
+  ownerId    String
+
+  rentApartment RentApartment?
+    rentHouse     RentHouse?
+
+      booking Booking[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+@@unique([id, ownerId])
+@@map("ad")
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+
+  ad   Ad     @relation(fields: [adId], references: [id])
+  adId String
+
+  renter   User   @relation(fields: [renterId], references: [id])
+  renterId String @unique
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+@@map("booking")
+}
+
+model RentApartment {
+  id            String   @id @default(cuid())
+  rooms         String
+  bathroom      String
+  renovation    String
+  ceilingHeight Int
+  totalArea     Int
+  livingArea    Int
+  kitchenArea   Int
+  floor         Int
+  totalFloor    Int
+  yearBuilt     Int?
+    parkingType   String
+  bargain       String
+  deposit       String
+  agentFee      String?
+    utilities     String?
+      adId          String   @unique
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  ad            Ad       @relation(fields: [adId], references: [id])
+
+@@map("rent_apartment")
+}
+
+model RentHouse {
+  id String @id @default(cuid())
+
+  plotArea          Int
+  plotHouse         Int
+  areaType          String
+  floor             Int
+  houseType         String
+  houseMaterialType String
+  toilet            String
+  shower            String
+  bargain           String
+  deposit           String
+  agentFee          String?
+    utilities         String?
+      ad                Ad      @relation(fields: [adId], references: [id])
+  adId              String  @unique
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+@@map("rent_house")
+}
+
+model Location {
+  id        Int    @id @default(autoincrement())
+  latitude  Float
+  longitude Float
+  city      String
+  street    String
+  ads       Ad[]
+
+@@unique([latitude, longitude, city, street])
+@@map("location")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String
+  userId    String?  @unique
+    createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User?    @relation(fields: [userId], references: [id])
+
+@@map("review")
+}
+
+enum UserRoles {
+  USER
+ADMIN
+}
+
+enum AdTypes {
+  SHORT_RENT
+LONG_RENT
+}
+
+enum PropertyTypes {
+  HOUSE
+APARTMENT
+}
+
+enum PropertyDealTypes {
+  SELL @map("sell")
+RENT @map("rent")
+BUY  @map("buy")
+}
