@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -21,15 +22,16 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async checkAuth(req: Request) {
+  async accounts(req: Request, res: Response) {
     const accessToken = req.headers["authorization"];
     if (!accessToken) return false;
     try {
       const token = accessToken.split(" ")[1];
-      await this.jwt.verifyAsync(token);
-      return true;
+      const authData = await this.jwt.verifyAsync(token);
+      return authData;
     } catch (e) {
       console.log(e, "Ошибка проверки авторизации - checkAuth");
+      this.removeRefreshTokenFromCookies(res);
       return false;
     }
   }

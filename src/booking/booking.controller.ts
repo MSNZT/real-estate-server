@@ -1,11 +1,22 @@
-import { Body, Controller, Post, UseFilters, UseGuards } from "@nestjs/common";
-import { User } from "@prisma/client";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseFilters,
+  UseGuards,
+} from "@nestjs/common";
+import { Prisma, User } from "@prisma/client";
 
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth-guard";
 import { CurrentUser } from "@/users/decorators/current-user";
 import { BookingService } from "./booking.service";
 import { BookingCreateDto } from "./dto/booking-create.dto";
 import { HttpExceptionFilter } from "@/errors/http-exception.filter";
+import { BookingCalculatePrice } from "./dto/calculatePrice.dto";
 
 @UseFilters(HttpExceptionFilter)
 @Controller("booking")
@@ -18,17 +29,29 @@ export class BookingController {
     @Body() dto: BookingCreateDto,
     @CurrentUser() user: Pick<User, "id">,
   ) {
-    const [day, month, year] = dto.startDate.split("/");
-    const startDate = new Date(`${year}-${month}-${day}`).toISOString();
+    return await this.bookingService.createBooking(dto, user.id);
+  }
 
-    const [endDay, endMonth, endYear] = dto.endDate.split("/");
-    const endDate = new Date(`${endYear}-${endMonth}-${endDay}`).toISOString();
+  @Get("details/:id")
+  async getBookingListById(@Param("id") id: string) {
+    return await this.bookingService.getBookingListById(id);
+  }
 
-    const createDto: BookingCreateDto = {
-      adId: dto.adId,
-      startDate,
-      endDate,
-    };
-    return await this.bookingService.createBooking(createDto, user.id);
+  @UseGuards(JwtAuthGuard)
+  @Get("orders")
+  async getMyOrders(@CurrentUser() user: any) {
+    return await this.bookingService.getMyOrders(user.id as string);
+  }
+
+  @Post("calculate")
+  async calculatePrice(@Body() dto: BookingCalculatePrice) {
+    console.log(dto);
+
+    return await this.bookingService.calculatePrice(dto);
+  }
+
+  @Delete("cancel/:id")
+  async cancel(@Param("id") id: string, @CurrentUser() user: any) {
+    return await this.bookingService.cancelBooking(id, user);
   }
 }

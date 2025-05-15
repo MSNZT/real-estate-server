@@ -11,6 +11,7 @@ import { AdModule } from "@/ad/ad.module";
 import { BookingModule } from "@/booking/booking.module";
 
 import { formatError } from "./errors/formatGraphqlError";
+import { FileUploadModule } from "./file/file-upload.module";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { formatError } from "./errors/formatGraphqlError";
     UsersModule,
     AdModule,
     BookingModule,
+    FileUploadModule,
   ],
   providers: [
     // ChatGateway,

@@ -1,10 +1,27 @@
 import { Field, Int, ObjectType } from "@nestjs/graphql";
 import { Location } from "./location.model";
 import { Owner } from "./owner.model";
-import { AdTypes, DurationRentTypes, PropertyTypes } from "@prisma/client";
+import { AdTypes, PropertyTypes } from "@prisma/client";
 import GraphQLJSON from "graphql-type-json";
 import { BookingModel } from "./booking.model";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
+
+@ObjectType()
+export class AdContact {
+  @Field(() => String)
+  name: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  email?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  phone?: string;
+
+  @Field(() => String)
+  communication: string;
+}
 
 @ObjectType()
 export class RentHouse {
@@ -32,9 +49,6 @@ export class Deal {
   @Field(() => GraphQLJSON)
   fields: any;
 
-  @Field(() => DurationRentTypes, { nullable: true })
-  durationRent: DurationRentTypes;
-
   @Field(() => Date)
   createdAt: Date;
 
@@ -53,12 +67,18 @@ export class Ad {
   @Field(() => String)
   id: string;
 
+  @Field(() => String)
+  title: string;
+
   @Field()
   @IsNotEmpty({ message: "Поле description обязательно для заполнения" })
   description: string;
 
   @Field(() => String)
   mainPhoto: string;
+
+  @Field(() => Number, { nullable: true })
+  views?: number;
 
   @Field(() => [String])
   photos: string[];
@@ -72,8 +92,14 @@ export class Ad {
   @Field(() => Deal)
   deal: Deal;
 
+  @Field(() => AdContact)
+  contact: AdContact;
+
   @Field(() => PropertyDetails)
   propertyDetails?: PropertyDetails;
+
+  @Field(() => [String])
+  features: string[];
 
   @Field(() => Location)
   location: Location;

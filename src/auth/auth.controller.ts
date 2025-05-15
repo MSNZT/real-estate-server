@@ -18,15 +18,20 @@ import { LoginDto, RegisterDto } from "./dto";
 import { AuthGuard } from "@nestjs/passport";
 import { ResponseDto, UserDto } from "./dto/response";
 import { HttpExceptionFilter } from "../errors/http-exception.filter";
+import { JwtAuthGuard } from "./guards/jwt-auth-guard";
 
 @UseFilters(HttpExceptionFilter)
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get("check")
-  async checkAuth(@Req() req: Request) {
-    return await this.authService.checkAuth(req);
+  @UseGuards(JwtAuthGuard)
+  @Get("accounts")
+  async accounts(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return await this.authService.accounts(req, res);
   }
 
   @Post("register")

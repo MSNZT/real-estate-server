@@ -36,11 +36,17 @@ model Ad {
 
   mainPhoto String
   photos    String[]
+  title String
 
   adType       AdTypes
   propertyType PropertyTypes
   deal         Deal?
   booking      Booking[]
+
+  contact Contact @relation(fields: [contactId], references: [id])
+  contactId String
+
+  views         Int?   @default(0)
 
   propertyDetails PropertyDetails?
   features        String[]
@@ -79,12 +85,28 @@ model Deal {
 
   price        Int
   fields       Json
-  durationRent DurationRentTypes?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("deal")
+}
+
+model Contact {
+  id String @id @default(cuid())
+  ad Ad[]
+
+  name String
+  email String
+  phone String
+
+  communication String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("contact")
+
 }
 
 model Booking {
@@ -97,6 +119,10 @@ model Booking {
 
   renter   User   @relation(fields: [renterId], references: [id])
   renterId String
+
+  guestCounts Int
+  guestName String
+  guestPhone String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -113,6 +139,7 @@ model Location {
   ads       Ad[]
 
   @@unique([latitude, longitude, city, street])
+  @@index([latitude, longitude])
   @@map("location")
 }
 
@@ -134,7 +161,8 @@ enum UserRoles {
 }
 
 enum AdTypes {
-  rent
+  rent_short
+  rent_long
   sell
 }
 
@@ -146,9 +174,4 @@ enum PropertyTypes {
 enum PropertyDealTypes {
   rentApartment
   rentHouse
-}
-
-enum DurationRentTypes {
-  short
-  long
 }

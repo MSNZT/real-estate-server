@@ -1,20 +1,23 @@
-import { IsBoolean, IsString } from "class-validator";
+import { IsBoolean, IsOptional, IsString } from "class-validator";
 import { Expose } from "class-transformer";
 
 export class DealFieldsDto {
   @Expose()
-  @IsBoolean({ message: "Поле bargain не может быть пустым" })
+  @IsOptional()
+  @IsBoolean({ message: "Поле bargain должно содержать булево значение" })
   bargain: boolean;
-
   @Expose()
-  @IsString({ message: "Поле deposit не может быть пустым" })
+  @IsOptional()
+  @IsString({ message: "Поле deposit должно быть числом" })
   deposit: number;
 
   @Expose()
-  @IsString({ message: "Поле agentFee не может быть пустым" })
+  @IsOptional()
+  @IsString({ message: "Поле agentFee должно быть числом" })
   agentFee: number;
 
   @Expose()
-  @IsString({ message: "Поле utilities не может быть пустым" })
-  utilities: number;
+  @IsOptional()
+  @IsString({ message: "Поле utilities должно быть числом" })
+  utilitiesFee: number;
 }

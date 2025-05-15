@@ -6,6 +6,8 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "@/prisma/prisma.service";
 import { BookingCreateDto } from "./dto/booking-create.dto";
+import { BookingCalculatePrice } from "./dto/calculatePrice.dto";
+import { getOrderTitle } from "./utils/getOrderTitle";
 
 @Injectable()
 export class BookingService {
@@ -13,7 +15,8 @@ export class BookingService {
 
   async createBooking(dto: BookingCreateDto, userId: string) {
     try {
-      const { adId, endDate, startDate } = dto;
+      const { adId, endDate, startDate, guestName, guestPhone, guestCounts } =
+        dto;
 
       const adExists = await this.prismaService.ad.findUnique({
         where: { id: adId },
@@ -29,6 +32,13 @@ export class BookingService {
         );
       }
       if (startDate >= endDate) {
+        console.log(
+          startDate,
+          endDate,
+          startDate >= endDate,
+          typeof startDate,
+          typeof endDate,
+        );
         throw new BadRequestException(
           "Дата начала бронирования не может быть больше или равна окончанию",
         );
@@ -59,6 +69,9 @@ export class BookingService {
         data: {
           startDate,
           endDate,
+          guestCounts,
+          guestName,
+          guestPhone,
           renter: {
             connect: { id: userId },
           },
@@ -69,6 +82,74 @@ export class BookingService {
       });
     } catch (e) {
       throw e;
+    }
+  }
+
+  async getBookingListById(id: string) {
+    try {
+      const today = new Date();
+      const firstDayOfCurrentMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1,
+      );
+      const bookingList = await this.prismaService.booking.findMany({
+        where: {
+          adId: id,
+          startDate: {
+            gte: firstDayOfCurrentMonth,
+          },
+        },
+      });
+
+      if (!bookingList.length) return [];
+      return bookingList;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  async getMyOrders(userId: string) {
+    try {
+      const orders = await this.prismaService.booking.findMany({
+        where: {
+          renterId: userId,
+        },
+        select: {
+          adId: true,
+          startDate: true,
+          endDate: true,
+          ad: {
+            select: {
+              title: true,
+              mainPhoto: true,
+              location: {
+                select: {
+                  city: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (orders.length > 0)
+        return orders.map((order) => [
+          {
+            orderTitle: getOrderTitle(
+              order.ad.location.city,
+              order.startDate,
+              order.endDate,
+            ),
+            adTitle: order.ad.title,
+            photo: order.ad.mainPhoto,
+          },
+        ]);
+      return [];
+    } catch (error) {
+      console.log("Получение всех orders", error);
+      return [];
     }
   }
 
@@ -90,5 +171,19 @@ export class BookingService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async calculatePrice(dto: BookingCalculatePrice) {
+    const { countDays, price } = dto;
+
+    const totalPrice = countDays * price;
+    const prepayment = Math.round((totalPrice / 100) * 20);
+    const remainder = totalPrice - prepayment;
+
+    return {
+      totalPrice,
+      prepayment,
+      remainder,
+    };
   }
 }

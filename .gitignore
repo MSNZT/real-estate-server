@@ -11,6 +11,7 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+.yarn/
 
 # OS
 .DS_Store
@@ -40,6 +41,7 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+.env
 
 # temp directory
 .temp
@@ -50,6 +52,9 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+prisma/seed.ts
+prisma/migrations/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

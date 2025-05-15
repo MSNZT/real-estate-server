@@ -13,11 +13,11 @@ import { PriceScalar } from "@/ad/dto/price";
 
 @InputType()
 class PriceFilter {
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @IsOptional()
   from?: number;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @IsOptional()
   to?: number;
 }
@@ -41,7 +41,22 @@ export class DealFilter {
 }
 
 @InputType()
+export class LocationFilter {
+  @Field(() => GraphQLJSON, { nullable: true })
+  @IsOptional()
+  fields?: Record<string, any>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  city?: string;
+}
+
+@InputType()
 export class AdFilterInput {
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  ids: string[];
+
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsEnum(AdTypes, {
@@ -69,6 +84,12 @@ export class AdFilterInput {
   @ValidateNested()
   @IsOptional()
   deal?: DealFilter;
+
+  @Field(() => LocationFilter, { nullable: true })
+  @Type(() => LocationFilter)
+  @ValidateNested()
+  @IsOptional()
+  location?: LocationFilter;
 
   @Field({ nullable: true })
   @IsInt()

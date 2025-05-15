@@ -3,13 +3,14 @@ import { AdService } from "./ad.service";
 import { Ad } from "./model/ad.model";
 import { CreateAdInput } from "./dto/createAdInput";
 import { UseFilters, UseGuards } from "@nestjs/common";
-import { AdFilterInput } from "./dto/queryFilters.dto";
+import { AdFilterInput } from "./dto/adFilterInput";
 import { UnauthorizedExceptionFilter } from "./filters/unauthorizedExceptionFilter";
 import { GqlAuthGuard } from "@/auth/guards/graphql-auth-guard";
 import { CurrentUser } from "@/users/decorators/current-user";
 import { User } from "@prisma/client";
 import { UpdateAdInput } from "./dto/update.dto";
 import { GraphQLExceptionFilter } from "@/lib/filters/graphql-exception-filter";
+import { AdsResponse } from "./model/adsReponse";
 
 @UseFilters(UnauthorizedExceptionFilter)
 @UseFilters(GraphQLExceptionFilter)
@@ -17,7 +18,7 @@ import { GraphQLExceptionFilter } from "@/lib/filters/graphql-exception-filter";
 export class AdResolver {
   constructor(private adService: AdService) {}
 
-  @Query(() => [Ad], { name: "getAllAds" })
+  @Query(() => AdsResponse, { name: "getAllAds" })
   async getAllAds(
     @Args("filters", { nullable: true })
     filters?: AdFilterInput,

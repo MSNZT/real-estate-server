@@ -1,10 +1,5 @@
 import { Field, InputType, registerEnumType } from "@nestjs/graphql";
-import {
-  AdTypes,
-  DurationRentTypes,
-  PropertyDealTypes,
-  PropertyTypes,
-} from "@prisma/client";
+import { AdTypes, PropertyDealTypes, PropertyTypes } from "@prisma/client";
 import { Transform, Type } from "class-transformer";
 import {
   ArrayNotEmpty,
@@ -12,7 +7,6 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   MinLength,
   ValidateNested,
@@ -30,10 +24,6 @@ registerEnumType(PropertyTypes, {
 
 registerEnumType(PropertyDealTypes, {
   name: "PropertyDealTypes",
-});
-
-registerEnumType(DurationRentTypes, {
-  name: "DurationRentTypes",
 });
 
 @InputType()
@@ -63,15 +53,21 @@ export class DealInput {
 
   @Field(() => GraphQLJSONObject)
   fields: object;
+}
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  @IsString()
-  @IsEnum(DurationRentTypes, {
-    message: `durationRent должен содержать один из вариантов: (${Object.values(AdTypes).join(", ")})`,
-  })
-  @Transform(({ value }) => value?.toLowerCase())
-  durationRent: DurationRentTypes;
+@InputType()
+export class ContactInput {
+  @Field(() => String)
+  name: string;
+
+  @Field(() => String)
+  email: string;
+
+  @Field(() => String)
+  phone: string;
+
+  @Field(() => String)
+  communication: string;
 }
 
 @InputType()
@@ -99,6 +95,9 @@ export class CreateAdInput {
   @Transform(({ value }) => value?.toLowerCase())
   propertyType: PropertyTypes;
 
+  @Field(() => String)
+  title: string;
+
   @Field(() => PropertyDetailsInput)
   @Type(() => PropertyDetailsInput)
   @ValidateNested()
@@ -108,6 +107,11 @@ export class CreateAdInput {
   @Type(() => DealInput)
   @ValidateNested()
   deal: DealInput;
+
+  @Field(() => ContactInput)
+  @Type(() => ContactInput)
+  @ValidateNested()
+  contact: ContactInput;
 
   @Field(() => String)
   @IsNotEmpty({ message: "Поле описание не может быть пустым" })

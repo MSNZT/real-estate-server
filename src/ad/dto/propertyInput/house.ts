@@ -15,8 +15,8 @@ export class HouseFieldsInput {
   areaType: string;
 
   @Expose()
-  @IsNumber({}, { message: "Поле floor не может быть пустым" })
-  floor: number;
+  @IsNumber({}, { message: "Поле totalFloor не может быть пустым" })
+  totalFloor: number;
 
   @Expose()
   @IsString({ message: "Поле houseType не может быть пустым" })
