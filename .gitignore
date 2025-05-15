@@ -54,7 +54,6 @@ pids
 *.pid.lock
 
 prisma/seed.ts
-prisma/migrations/
 
 docker-compose.yml
 

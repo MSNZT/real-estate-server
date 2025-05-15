@@ -79,8 +79,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api");
 
-  await app.listen(5001);
-  logger.log("Application is running on port 7000");
+  const port = process.env.PORT || 5001; // Render передаёт порт через PORT
+  await app.listen(port, "0.0.0.0");
+  logger.log("Application is running on port 5001");
 }
 
 bootstrap();
