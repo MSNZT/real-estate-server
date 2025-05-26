@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
+import { AppModule } from "./app/app.module";
 import * as cookieParser from "cookie-parser";
 import { BadRequestException, Logger, ValidationPipe } from "@nestjs/common";
 import * as bodyParser from "body-parser";
@@ -8,10 +8,12 @@ import * as passport from "passport";
 import { join } from "path";
 
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger("Bootstrap");
+  const clientUrl = new ConfigService().getOrThrow("CLIENT_URL");
 
   app.use((err, req, res, next) => {
     if (
@@ -31,8 +33,8 @@ async function bootstrap() {
 
   app.use(bodyParser.json({ limit: "10mb" }));
   app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
-  app.useStaticAssets(join(process.cwd(), "uploads"), {
-    prefix: "/files",
+  app.useStaticAssets(join(process.cwd(), "assets"), {
+    prefix: "/assets",
   });
 
   app.useGlobalPipes(
@@ -60,7 +62,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: "http://localhost:3000",
+    origin: clientUrl,
     credentials: true,
     exposedHeaders: "set-cookie",
   });
@@ -79,7 +81,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api");
 
-  const port = process.env.PORT || 5001; // Render передаёт порт через PORT
+  const port = process.env.PORT || 5001;
   await app.listen(port, "0.0.0.0");
   logger.log("Application is running on port 5001");
 }

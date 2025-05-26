@@ -10,18 +10,22 @@ datasource db {
 model User {
   id String @id @default(cuid())
 
-  email    String
+  email    String @unique
   password String?
-  provider String?
   name     String
+  phone    String
   avatar   String?
+
   roles    UserRoles @default(USER)
 
   ads Ad[]
 
-  reviews Review?
+  reviews Review[]
+  bookings Booking[]
+  tokens Token[]
 
-  booking Booking[]
+  resetPasswordCode   String?
+  resetPasswordExpires DateTime?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -114,7 +118,7 @@ model Booking {
   startDate DateTime
   endDate   DateTime
 
-  ad   Ad     @relation(fields: [adId], references: [id])
+  ad   Ad?     @relation(fields: [adId], references: [id])
   adId String
 
   renter   User   @relation(fields: [renterId], references: [id])
@@ -135,10 +139,10 @@ model Location {
   latitude  Float
   longitude Float
   city      String
-  street    String
+  address    String
   ads       Ad[]
 
-  @@unique([latitude, longitude, city, street])
+  @@unique([latitude, longitude, city, address])
   @@index([latitude, longitude])
   @@map("location")
 }
@@ -148,11 +152,27 @@ model Review {
   rating    Int
   comment   String
   userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  user      User?    @relation(fields: [userId], references: [id])
 
   @@map("review")
+}
+
+model Token {
+  id String @id @default(cuid())
+  used Boolean
+  jit String @unique
+
+  user User? @relation(fields: [userId], references: [id])
+  userId String
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([createdAt]) // Важно для производительности
+  @@index([used])
+  @@map("token")
 }
 
 enum UserRoles {

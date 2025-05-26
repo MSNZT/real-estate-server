@@ -4,7 +4,7 @@ import { join } from "path";
 
 export const multerConfig: MulterModuleOptions = {
   storage: diskStorage({
-    destination: join(process.cwd(), "uploads"),
+    destination: join(process.cwd(), "assets"),
     filename: (req, file, cb) => {
       const extension = file.mimetype.split("/")[1];
       const fileName = `${Date.now()}-${Math.round(Math.random() * 9)}.${extension}`;

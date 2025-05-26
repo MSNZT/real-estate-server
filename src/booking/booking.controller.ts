@@ -12,7 +12,7 @@ import {
 import { Prisma, User } from "@prisma/client";
 
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth-guard";
-import { CurrentUser } from "@/users/decorators/current-user";
+import { CurrentUser } from "@/user/decorators/current-user";
 import { BookingService } from "./booking.service";
 import { BookingCreateDto } from "./dto/booking-create.dto";
 import { HttpExceptionFilter } from "@/errors/http-exception.filter";

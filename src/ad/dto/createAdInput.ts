@@ -41,8 +41,8 @@ export class LocationDto {
   city: string;
 
   @Field(() => String)
-  @IsString({ message: "Поле улица не может быть пустым" })
-  street: string;
+  @IsString({ message: "Поле адрес не может быть пустым" })
+  address: string;
 }
 
 @InputType()

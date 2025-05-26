@@ -14,16 +14,20 @@ import {
 import { Request, Response } from "express";
 import { Cookies } from "src/libs/decorators/cookies.decorator";
 import { AuthService } from "./auth.service";
-import { LoginDto, RegisterDto } from "./dto";
+import { LoginDto, RegisterCompletionDto, RegisterDto } from "./dto";
 import { AuthGuard } from "@nestjs/passport";
 import { ResponseDto, UserDto } from "./dto/response";
 import { HttpExceptionFilter } from "../errors/http-exception.filter";
 import { JwtAuthGuard } from "./guards/jwt-auth-guard";
+import { UserService } from "@/user/user.service";
 
 @UseFilters(HttpExceptionFilter)
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get("accounts")
@@ -40,6 +44,21 @@ export class AuthController {
     const { refreshToken, ...response } = await this.authService.register(dto);
 
     return new UserDto(response.user);
+  }
+
+  @Get("register/check")
+  async registerCheck(@Req() req: Request) {
+    console.log(req.cookies);
+    return this.authService.registerCheck(req);
+  }
+
+  @Post("register/completion")
+  async registerCompletion(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() body: RegisterCompletionDto,
+  ) {
+    return this.authService.registerCompletion(req, res, body);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -70,17 +89,21 @@ export class AuthController {
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
   async googleAuthCallback(
-    @Req() req: Request,
+    @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { refreshToken, ...response } =
-      await this.authService.validateOAuthLogin(req);
+    // ts-ignore
+    const email = req.user.email;
+    console.log(req.user.email, "check");
 
-    this.authService.setRefreshTokenToCookies(res, refreshToken);
-
-    return res.redirect(
-      `http://localhost:3000?accessToken=${response.accessToken}`,
-    );
+    const user = await this.userService.findByEmail(email);
+    if (user) {
+      const { refreshToken, ...response } =
+        await this.authService.loginWithSocial(user);
+      this.authService.setRefreshTokenToCookies(res, refreshToken);
+      return res.redirect(`${process.env.CLIENT_URL}/`);
+    }
+    return this.authService.registerWithSocial(req, res);
   }
 
   @Get("yandex")

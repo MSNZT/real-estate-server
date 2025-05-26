@@ -1,22 +1,30 @@
 import {
   Controller,
+  Delete,
+  Param,
   Post,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { FileUploadService } from "./file-upload.service";
+import { FileService } from "./file.service";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth-guard";
 
 @Controller("files")
-export class FileUploadController {
-  constructor(private readonly fileUploadService: FileUploadService) {}
+export class FileController {
+  constructor(private readonly fileService: FileService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post("uploads")
   @UseInterceptors(FilesInterceptor("files"))
   uploadFile(@UploadedFiles() files: Express.Multer.File[]) {
-    return this.fileUploadService.uploadFile(files);
+    return this.fileService.uploadFiles(files);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete("remove/:name")
+  async removeFile(@Param("name") name: string): Promise<string> {
+    return this.fileService.removeFile(name);
   }
 }

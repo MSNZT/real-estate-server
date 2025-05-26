@@ -1,0 +1,180 @@
+import { UserService } from "@/user/user.service";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { compareSync } from "bcrypt";
+import { User } from "@prisma/client";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { MailService } from "@/mail/mail.service";
+import { TokenService } from "@/token/token.service";
+import { RegisterDto } from "../dto/register.dto";
+import { LoginDto } from "../dto/login.dto";
+import { ResetPasswordPayload, TokensResponse } from "../types/token.types";
+import { EmailDto } from "../dto/base.dto";
+import { ResetPasswordDto, ValidateCodeDto } from "../dto/reset-password.dto";
+import { removeTokenFromCookie } from "../utils/removeTokenFromCookies";
+import { Response } from "express";
+import { randomInt } from "crypto";
+import { EXPIRES_REGISTER_CODE } from "../const/expires";
+
+@Injectable()
+export class AuthService {
+  private logger = new Logger(AuthService.name);
+
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+    private mailService: MailService,
+    private tokenService: TokenService,
+  ) {}
+
+  async register(dto: RegisterDto): Promise<User> {
+    try {
+      const existingUser = await this.userService.findByEmail(dto.email);
+      if (existingUser) {
+        throw new ConflictException(
+          "Пользователь с таким email уже существует",
+        );
+      }
+      const user = await this.userService.create(dto);
+      return user;
+    } catch (error) {
+      console.log(error);
+      if (error.status && error.status === 409) {
+        throw error;
+      }
+      throw new BadRequestException(
+        "Произошла неизвестная ошибка при регистрации",
+      );
+    }
+  }
+
+  async login(dto: LoginDto): Promise<{ user: User; tokens: TokensResponse }> {
+    try {
+      const existingUser = await this.userService.findByEmail(dto.email);
+      if (!existingUser || !compareSync(dto.password, existingUser.password)) {
+        throw new UnauthorizedException("Неверный email или пароль");
+      }
+      const tokens = await this.generateUserTokens(existingUser);
+      return {
+        user: existingUser,
+        tokens,
+      };
+    } catch (error) {
+      if (error.status && error.status === 401) {
+        throw error;
+      }
+      throw new BadRequestException("Неизвестная ошибка при авторизации");
+    }
+  }
+
+  async getMe(email: User["email"]) {
+    try {
+      const user = await this.userService.findByEmail(email);
+      return user;
+    } catch (error) {
+      this.logger.error("Ошибка при проверки токена доступа", error);
+      // removeTokenFromCookie(res, "refreshToken", this.configService);
+      throw new UnauthorizedException("Отсутствует токен доступа 444");
+    }
+  }
+
+  async forgetPassword(dto: EmailDto) {
+    try {
+      const user = await this.userService.findByEmail(dto.email);
+      if (user) {
+        const code = randomInt(100000, 999999).toString();
+
+        await this.userService.updateUser(user.email, {
+          resetPasswordCode: code,
+          resetPasswordExpires: new Date(Date.now() + 10 * 60 * 1000),
+        });
+        await this.mailService.sendResetPassword(user.email, code);
+      }
+      const domain = user.email.split("@")[1];
+      return {
+        status: "complete",
+        message:
+          "Если пользователь существует, мы отправим 6 значный код для сброса пароля на почтовый ящик. Если письмо не пришло, проверьте папку спам.",
+        domain,
+      };
+    } catch (error) {
+      this.logger.error("Password reset error", error);
+      console.log(error);
+      throw new InternalServerErrorException(
+        "Произошла ошибка при обработке запроса",
+      );
+    }
+  }
+
+  async validateForgetPasswordCode(dto: ValidateCodeDto) {
+    try {
+      const { email, code } = dto;
+      await this.verifyResetCode(email, code);
+      return { status: "success" };
+    } catch (error) {
+      this.logger.error("Ошибка при валидации reset password code", error);
+      throw error;
+    }
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    try {
+      const { email, code, password } = dto;
+      await this.verifyResetCode(email, code);
+      await this.userService.updateUser(email, {
+        password,
+        resetPasswordCode: null,
+        resetPasswordExpires: null,
+      });
+
+      return {
+        status: "success",
+      };
+    } catch (error) {
+      this.logger.error("Произошла ошибка при сбросе пароля", error);
+      throw error;
+    }
+  }
+
+  async generateUserTokens(user: User): Promise<TokensResponse> {
+    const payload = {
+      email: user.email,
+      name: user.name,
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: this.configService.getOrThrow("JWT_EXP_ACCESS"),
+    });
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: this.configService.getOrThrow("JWT_EXP_REFRESH"),
+    });
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async verifyResetCode(email: string, code: string) {
+    const user = await this.userService.findByEmail(email);
+
+    console.log(code, user.resetPasswordCode);
+    console.log("date", user.resetPasswordExpires < new Date());
+
+    if (!user || user.resetPasswordCode !== code) {
+      throw new BadRequestException("Неверный код восстановления");
+    }
+
+    if (user.resetPasswordExpires < new Date()) {
+      throw new BadRequestException("Срок действия кода истек");
+    }
+  }
+}

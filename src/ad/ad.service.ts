@@ -235,7 +235,7 @@ export class AdService {
   async getOrCreateLocation(location: LocationDto) {
     const existingLocation = await this.prismaService.location.upsert({
       where: {
-        latitude_longitude_city_street: location,
+        latitude_longitude_city_address: location,
       },
       update: {},
       create: location,

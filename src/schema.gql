@@ -7,7 +7,7 @@ type Location {
   latitude: Float!
   longitude: Float!
   city: String!
-  street: String!
+  address: String!
 }
 
 type Owner {
@@ -168,7 +168,7 @@ input LocationDto {
   latitude: Float!
   longitude: Float!
   city: String!
-  street: String!
+  address: String!
 }
 
 input UpdateAdInput {

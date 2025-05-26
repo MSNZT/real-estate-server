@@ -15,5 +15,5 @@ export class Location {
   city: string;
 
   @Field(() => String)
-  street: string;
+  address: string;
 }

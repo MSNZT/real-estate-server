@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -9,15 +8,16 @@ import { JwtService } from "@nestjs/jwt";
 import { User } from "@prisma/client";
 import { compareSync } from "bcrypt";
 import { Response, Request } from "express";
-import { UsersService } from "src/users/users.service";
-import { LoginDto, RegisterDto } from "./dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { LoginDto, RegisterCompletionDto, RegisterDto } from "./dto";
+import { AccountsDto, UserDto } from "./dto/response";
+import { UserService } from "@/user/user.service";
+import { PrismaService } from "@/prisma/prisma.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prismaService: PrismaService,
-    private usersService: UsersService,
+    private usersService: UserService,
     private jwt: JwtService,
     private configService: ConfigService,
   ) {}
@@ -28,7 +28,8 @@ export class AuthService {
     try {
       const token = accessToken.split(" ")[1];
       const authData = await this.jwt.verifyAsync(token);
-      return authData;
+      const user = await this.usersService.findByEmail(authData.email);
+      return new AccountsDto({ ...user, phone: "+79238762938" });
     } catch (e) {
       console.log(e, "Ошибка проверки авторизации - checkAuth");
       this.removeRefreshTokenFromCookies(res);
@@ -37,7 +38,7 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    const oldUser = await this.usersService.findByIdOrEmail(dto.email);
+    const oldUser = await this.usersService.findByEmail(dto.email);
     if (oldUser) {
       throw new ConflictException("Пользователь с таким email уже существует");
     }
@@ -51,8 +52,73 @@ export class AuthService {
     };
   }
 
+  registerWithSocial(req: any, res: Response) {
+    const registerToken = this.jwt.sign(
+      {
+        email: req.user.email,
+        name: req.user.name,
+        avatar: req.user.avatar,
+      },
+      { expiresIn: "10m" },
+    );
+
+    const maxAge = 10 * 60 * 1000;
+    res.cookie("registerToken", registerToken, {
+      httpOnly: true,
+      maxAge,
+      secure: false,
+      sameSite: "lax",
+    });
+
+    return res.redirect(`${process.env.CLIENT_URL}/auth/register/completion`);
+  }
+
+  async registerCheck(req: Request) {
+    try {
+      const registerToken = req.cookies["registerToken"];
+
+      if (registerToken) {
+        await this.verifyToken(registerToken);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async registerCompletion(
+    req: Request,
+    res: Response,
+    dto: RegisterCompletionDto,
+  ) {
+    try {
+      const registerToken = req.cookies["registerToken"];
+      console.log("phone", dto);
+
+      if (registerToken) {
+        const data = await this.verifyToken(registerToken);
+        await this.register({
+          ...data,
+          ...dto,
+        });
+
+        res.cookie("registerToken", "", {
+          httpOnly: true,
+          expires: new Date(0),
+          secure: true,
+          sameSite: "none",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+
+      throw new UnauthorizedException("Ошибка при регистрации");
+    }
+  }
+
   async login(dto: LoginDto) {
-    const user = await this.usersService.findByIdOrEmail(dto.email);
+    const user = await this.usersService.findByEmail(dto.email);
 
     if (!user || !compareSync(dto.password, user.password)) {
       throw new UnauthorizedException("Неверный логин или пароль");
@@ -66,8 +132,18 @@ export class AuthService {
     };
   }
 
+  async loginWithSocial(dto: any) {
+    const user = await this.usersService.findByEmail(dto.email);
+    const tokens = this.generateToken(user);
+
+    return {
+      user,
+      ...tokens,
+    };
+  }
+
   async validateOAuthLogin(req: any) {
-    let user = await this.usersService.findByIdOrEmail(req.user.email);
+    let user = await this.usersService.findByEmail(req.user.email);
 
     if (!user) {
       user = await this.prismaService.user.create({
@@ -75,6 +151,7 @@ export class AuthService {
           email: req.user.email,
           name: req.user.name,
           avatar: req.user.picture,
+          phone: null,
         },
       });
     }
@@ -87,9 +164,13 @@ export class AuthService {
     };
   }
 
+  async verifyToken(token: string) {
+    return await this.jwt.verifyAsync(token);
+  }
+
   async refreshToken(refreshToken: string) {
-    const userId = this.jwt.verify(refreshToken).id;
-    const user = await this.usersService.findByIdOrEmail(userId);
+    const email = this.jwt.verify(refreshToken).email;
+    const user = await this.usersService.findByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException();

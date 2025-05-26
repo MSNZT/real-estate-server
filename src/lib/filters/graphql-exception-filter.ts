@@ -11,7 +11,7 @@ import { ValidationError } from "class-validator";
 
 @Catch()
 export class GraphQLExceptionFilter implements GqlExceptionFilter {
-  private readonly logger = new Logger("GraphQLExceptionFilter");
+  private readonly logger = new Logger(GraphQLExceptionFilter.name);
 
   catch(exception: any, host: ArgumentsHost) {
     const gqlHost = GqlArgumentsHost.create(host);

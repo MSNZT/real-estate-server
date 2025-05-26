@@ -6,7 +6,7 @@ import { UseFilters, UseGuards } from "@nestjs/common";
 import { AdFilterInput } from "./dto/adFilterInput";
 import { UnauthorizedExceptionFilter } from "./filters/unauthorizedExceptionFilter";
 import { GqlAuthGuard } from "@/auth/guards/graphql-auth-guard";
-import { CurrentUser } from "@/users/decorators/current-user";
+import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
 import { UpdateAdInput } from "./dto/update.dto";
 import { GraphQLExceptionFilter } from "@/lib/filters/graphql-exception-filter";
