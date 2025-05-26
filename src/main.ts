@@ -62,10 +62,12 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: clientUrl,
-    credentials: true,
-    exposedHeaders: "set-cookie",
-  });
+  origin: clientUrl,
+  credentials: true,
+  exposedHeaders: ['set-cookie'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'OPTIONS']
+});
 
   app.use(
     session({
