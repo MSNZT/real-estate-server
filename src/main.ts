@@ -13,7 +13,9 @@ import { ConfigService } from "@nestjs/config";
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger("Bootstrap");
-  const clientUrl = new ConfigService().getOrThrow("CLIENT_URL");
+  const configService = app.get(ConfigService);
+  const clientUrl = configService.getOrThrow("CLIENT_URL");
+  const PORT = configService.get("PORT") || 3000;
 
   app.use((err, req, res, next) => {
     if (
@@ -82,10 +84,9 @@ async function bootstrap() {
   app.use(passport.session());
 
   app.setGlobalPrefix("api");
-
-  const port = process.env.PORT || 3000;
-  await app.listen(port, "0.0.0.0");
-  logger.log("Application is running on port 3000");
+  
+  await app.listen(PORT, "0.0.0.0");
+  logger.log("Application is running on port: ", PORT);
 }
 
 bootstrap();
