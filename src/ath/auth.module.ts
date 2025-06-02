@@ -7,7 +7,6 @@ import { AuthService } from "./services/auth.service";
 import { jwtConfig } from "./config/jwt.config";
 import { UserModule } from "@/user/user.module";
 import { MailModule } from "@/mail/mail.module";
-import { TokenModule } from "@/token/token.module";
 import { STRATEGIES } from "./strategies";
 
 @Module({
@@ -17,8 +16,7 @@ import { STRATEGIES } from "./strategies";
     UserModule,
     // PassportModule,
     MailModule,
-    JwtModule.registerAsync(jwtConfig),
-    TokenModule,
+    JwtModule.registerAsync(jwtConfig)
   ],
 })
 export class AuthModule {}
