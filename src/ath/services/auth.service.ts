@@ -12,7 +12,6 @@ import { User } from "@prisma/client";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { MailService } from "@/mail/mail.service";
-import { TokenService } from "@/token/token.service";
 import { RegisterDto } from "../dto/register.dto";
 import { LoginDto } from "../dto/login.dto";
 import { AuthTokenPayload, TokensResponse } from "../types/token.types";
@@ -28,8 +27,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private mailService: MailService,
-    private tokenService: TokenService,
+    private mailService: MailService
   ) {}
 
   async register(dto: RegisterDto): Promise<User> {
