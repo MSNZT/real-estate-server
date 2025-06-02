@@ -17,7 +17,7 @@ export class GqlAuthGuard extends AuthGuard("jwt") {
     if (err || !user) {
       throw new UnauthorizedException({
         statusCode: 401,
-        message: "Unauthorized",
+        message: "Не авторизован",
       });
     }
     return user;

@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { AdService } from "./ad.service";
+import { AdService } from "./services/ad.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { AdResolver } from "./ad.resolver";
 import { PriceScalar } from "./dto/price";

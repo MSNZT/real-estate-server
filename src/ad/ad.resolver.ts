@@ -1,5 +1,5 @@
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { AdService } from "./ad.service";
+import { AdService } from "./services/ad.service";
 import { Ad } from "./model/ad.model";
 import { CreateAdInput } from "./dto/createAdInput";
 import { UseFilters, UseGuards } from "@nestjs/common";

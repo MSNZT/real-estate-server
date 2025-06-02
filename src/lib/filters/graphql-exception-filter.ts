@@ -3,11 +3,20 @@ import {
   BadRequestException,
   Catch,
   HttpException,
+  HttpStatus,
   Logger,
+  NotFoundException,
 } from "@nestjs/common";
 import { GqlArgumentsHost, GqlExceptionFilter } from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { ValidationError } from "class-validator";
+
+interface IErrorResponse {
+  message: string;
+  code: string;
+  statusCode: number;
+  errors?: Record<string, any>[];
+}
 
 @Catch()
 export class GraphQLExceptionFilter implements GqlExceptionFilter {
@@ -17,51 +26,25 @@ export class GraphQLExceptionFilter implements GqlExceptionFilter {
     const gqlHost = GqlArgumentsHost.create(host);
     this.logger.error(`Exception: ${exception.message}`, exception.stack);
 
-    if (exception instanceof BadRequestException) {
-      const response = exception.getResponse();
-      return this.handleValidationError(response);
-    }
+    const errorResponse = this.createErrorResponse(exception);
 
-    if (exception instanceof HttpException) {
-      const response = exception.getResponse();
-      return new GraphQLError("Validation failed", {
-        extensions: {
-          code: "BAD_REQUEST",
-          response: {
-            message: "Validation failed",
-            errors: response, // Передаем объект с ошибками
-          },
-        },
-      });
-    }
+    console.log(exception);
 
-    // Обработка других ошибок
-    return new GraphQLError("Internal server error", {
+    return new GraphQLError(errorResponse.message, {
       extensions: {
-        code: "INTERNAL_SERVER_ERROR",
+        code: errorResponse.code,
+        statusCode: errorResponse.statusCode,
       },
     });
   }
 
-  private handleValidationError(response: any) {
-    const errors = this.formatValidationErrors(response);
+  private createErrorResponse(exception: any): IErrorResponse {
+    console.log(exception);
 
-    return new GraphQLError("Validation failed", {
-      extensions: {
-        code: "BAD_REQUEST",
-        statusCode: 400,
-        errors,
-      },
-    });
-  }
-
-  private formatValidationErrors(errors: any) {
-    if (!Array.isArray(errors?.error)) {
-      return errors || [];
-    }
-    return errors.error.map((err: ValidationError) => ({
-      field: err.property,
-      message: Object.values(err.constraints || {})[0] || "Invalid value",
-    }));
+    return {
+      message: exception.message,
+      code: exception.response.error,
+      statusCode: exception.response.statusCode,
+    };
   }
 }

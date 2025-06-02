@@ -19,6 +19,7 @@ model User {
   roles    UserRoles @default(USER)
 
   ads Ad[]
+  favorites FavoriteAd[]
 
   reviews Review[]
   bookings Booking[]
@@ -35,9 +36,7 @@ model User {
 
 model Ad {
   id String @id @default(cuid())
-
   description String
-
   mainPhoto String
   photos    String[]
   title String
@@ -46,24 +45,27 @@ model Ad {
   propertyType PropertyTypes
   deal         Deal?
   booking      Booking[]
-
-  contact Contact @relation(fields: [contactId], references: [id])
-  contactId String
-
-  views         Int?   @default(0)
-
   propertyDetails PropertyDetails?
   features        String[]
+
+  views         Int?   @default(0)
+  favorites FavoriteAd[]
 
   location   Location @relation(fields: [locationId], references: [id])
   locationId Int
 
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
+
+  contact Contact @relation(fields: [contactId], references: [id])
+  contactId String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([adType])
+  @@index([propertyType])
+  @@index([features])
   @@unique([id, ownerId])
   @@map("ad")
 }
@@ -94,6 +96,24 @@ model Deal {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("deal")
+}
+
+model FavoriteAd {
+  id String @id @default(cuid())
+
+  ad   Ad     @relation(fields: [adId], references: [id])
+  adId String
+
+  user   User     @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([adId])
+  @@index([userId])
+  @@unique([adId, userId])
+  @@map("favorite_ad")
 }
 
 model Contact {

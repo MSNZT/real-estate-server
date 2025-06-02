@@ -3,9 +3,9 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  Patch,
   Post,
   Res,
+  UnauthorizedException,
   UseInterceptors,
 } from "@nestjs/common";
 import { Response } from "express";
@@ -23,7 +23,7 @@ import { AuthJwt } from "../decorators/auth-jwt.decorator";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
 import { UserDto } from "@/auth/dto/response";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Cookies } from "@/libs/decorators/cookies.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -102,15 +102,31 @@ export class AuthController {
     return await this.authService.validateForgetPasswordCode(dto);
   }
 
-  @Patch("reset-password")
+  @Post("reset-password")
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return await this.authService.resetPassword(dto);
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
-  @Get("test")
-  async test() {
-    console.log("test");
-    return true;
+  @Get("refresh")
+  async refreshToken(
+    @Cookies("refreshToken") refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!refreshToken) {
+      throw new UnauthorizedException("Refresh token expired");
+    }
+
+    const tokens = await this.authService.refreshToken(refreshToken);
+
+    setTokenToCookie(
+      res,
+      "refreshToken",
+      tokens.refreshToken,
+      EXPIRES_REFRESH_TOKEN,
+      this.configService,
+    );
+    return {
+      token: tokens.accessToken,
+    };
   }
 }

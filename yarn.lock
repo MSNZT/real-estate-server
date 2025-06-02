@@ -2596,6 +2596,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cookie-parser@npm:^1.4.8":
+  version: 1.4.8
+  resolution: "@types/cookie-parser@npm:1.4.8"
+  peerDependencies:
+    "@types/express": "*"
+  checksum: 10c0/c9a39da983203624a56ba16f9a7cb4b9d5fe113d863f05b60be15b2743699e8d3cea34c634a21a15c03054feb10a49f981a699d979357bff549d09e246561966
+  languageName: node
+  linkType: hard
+
 "@types/cookie@npm:^0.4.1":
   version: 0.4.1
   resolution: "@types/cookie@npm:0.4.1"
@@ -10267,6 +10276,7 @@ __metadata:
     "@nestjs/websockets": "npm:^10.4.5"
     "@prisma/client": "npm:^6.1.0"
     "@types/bcrypt": "npm:^5.0.2"
+    "@types/cookie-parser": "npm:^1.4.8"
     "@types/express": "npm:^4.17.17"
     "@types/express-session": "npm:^1.18.1"
     "@types/jest": "npm:^29.5.2"

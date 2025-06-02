@@ -86,12 +86,26 @@ type AdsResponse {
   hasNextPage: Boolean!
 }
 
+type ToggleFavoriteResponse {
+  status: String!
+}
+
+type FavoriteAd {
+  id: ID!
+  adId: ID!
+  userId: ID!
+  ad: Ad!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 """A custom scalar that validates and transforms price values"""
 scalar Price
 
 type Query {
   getAllAds(filters: AdFilterInput): AdsResponse!
   getAdById(id: ID!): Ad
+  getFavoriteAds: [FavoriteAd!]!
 }
 
 input AdFilterInput {
@@ -127,6 +141,7 @@ input LocationFilter {
 type Mutation {
   createAd(createAdInput: CreateAdInput!): Ad!
   updateAd(id: ID!, updatedFields: UpdateAdInput!): Ad!
+  toggleFavoriteAd(id: ID!): ToggleFavoriteResponse!
 }
 
 input CreateAdInput {

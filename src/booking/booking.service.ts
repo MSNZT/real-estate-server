@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "@/prisma/prisma.service";
@@ -11,6 +12,7 @@ import { getOrderTitle } from "./utils/getOrderTitle";
 
 @Injectable()
 export class BookingService {
+  logger = new Logger(BookingService.name);
   constructor(private readonly prismaService: PrismaService) {}
 
   async createBooking(dto: BookingCreateDto, userId: string) {
@@ -80,12 +82,13 @@ export class BookingService {
           },
         },
       });
-    } catch (e) {
-      throw e;
+    } catch (error) {
+      this.logger.error("Ошибка при создании бронирования", error);
+      throw error;
     }
   }
 
-  async getBookingListById(id: string) {
+  async getBookingDetails(id: string) {
     try {
       const today = new Date();
       const firstDayOfCurrentMonth = new Date(
@@ -105,7 +108,7 @@ export class BookingService {
       if (!bookingList.length) return [];
       return bookingList;
     } catch (error) {
-      console.log(error);
+      this.logger.error("Ошибка при получении бронирования по id", error);
       throw error;
     }
   }
@@ -148,7 +151,7 @@ export class BookingService {
         ]);
       return [];
     } catch (error) {
-      console.log("Получение всех orders", error);
+      this.logger.error("Ошибка при списка бронирований", error);
       return [];
     }
   }
@@ -159,6 +162,10 @@ export class BookingService {
         where: { adId },
       });
 
+      if (!existBooking) {
+        throw new NotFoundException("Бронирование не найдено");
+      }
+
       if (existBooking.renterId !== userId) {
         throw new ForbiddenException("Нет доступа для удаления бронирования");
       }
@@ -168,8 +175,9 @@ export class BookingService {
           id: existBooking.id,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      this.logger.error("Ошибка при отмене бронирования", error);
+      throw error;
     }
   }
 

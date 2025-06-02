@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { User, UserRoles } from "@prisma/client";
 import { Exclude, Expose } from "class-transformer";
 
 export class UserResponseDto implements Partial<User> {
@@ -14,14 +14,23 @@ export class UserResponseDto implements Partial<User> {
   @Expose()
   phone: string;
 
-  @Expose()
-  createdAt: Date;
-
-  @Expose()
-  updatedAt: Date;
-
   @Exclude()
   password: string;
+
+  @Exclude()
+  roles: UserRoles;
+
+  @Exclude()
+  resetPasswordCode: string | null;
+
+  @Exclude()
+  resetPasswordExpires: Date | null;
+
+  @Exclude()
+  createdAt: Date;
+
+  @Exclude()
+  updatedAt: Date;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

@@ -3,7 +3,7 @@ import { OAuthProfile } from "../types/oauth-profile";
 import { UserService } from "@/user/user.service";
 import { AuthService } from "./auth.service";
 import { JwtService } from "@nestjs/jwt";
-import { RegisterOAuthTokenResponse } from "../types/token.types";
+import { AuthTokenPayload } from "../types/token.types";
 import { OAuthRegisterDto } from "../dto/oauth-register.dto";
 
 @Injectable()
@@ -32,9 +32,7 @@ export class OAuthService {
 
   async validateOAuthRegisterToken(registerToken: string) {
     try {
-      await this.jwtService.verifyAsync<RegisterOAuthTokenResponse>(
-        registerToken,
-      );
+      await this.jwtService.verifyAsync<AuthTokenPayload>(registerToken);
       return {
         status: "success",
       };
@@ -56,9 +54,7 @@ export class OAuthService {
   ) {
     try {
       const payload =
-        await this.jwtService.verifyAsync<RegisterOAuthTokenResponse>(
-          registerToken,
-        );
+        await this.jwtService.verifyAsync<AuthTokenPayload>(registerToken);
 
       const user = await this.userService.create({
         phone: dto.phone,

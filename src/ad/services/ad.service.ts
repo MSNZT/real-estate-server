@@ -5,16 +5,16 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
 import { validateOrReject } from "class-validator";
-import { propertyTypeMap } from "./map/propertyTypeMap";
 import { ClassConstructor, plainToInstance } from "class-transformer";
-import { CreateAdInput, DealInput, LocationDto } from "./dto/createAdInput";
-import { Ad } from "./model/ad.model";
-import { UpdateAdInput } from "./dto/update.dto";
 import { Deal, Prisma, PropertyDetails, PropertyTypes } from "@prisma/client";
-import { AdFilterInput } from "./dto/adFilterInput";
-import { DealFieldsDto } from "./dto/deal.dto";
+import { PrismaService } from "@/prisma/prisma.service";
+import { CreateAdInput, DealInput, LocationDto } from "../dto/createAdInput";
+import { Ad } from "../model/ad.model";
+import { AdFilterInput } from "../dto/adFilterInput";
+import { UpdateAdInput } from "../dto/update.dto";
+import { propertyTypeMap } from "../map/propertyTypeMap";
+import { DealFieldsDto } from "../dto/deal.dto";
 
 @Injectable()
 export class AdService {

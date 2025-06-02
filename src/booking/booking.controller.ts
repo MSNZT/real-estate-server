@@ -5,11 +5,10 @@ import {
   Get,
   Param,
   Post,
-  Req,
   UseFilters,
   UseGuards,
 } from "@nestjs/common";
-import { Prisma, User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth-guard";
 import { CurrentUser } from "@/user/decorators/current-user";
@@ -17,13 +16,14 @@ import { BookingService } from "./booking.service";
 import { BookingCreateDto } from "./dto/booking-create.dto";
 import { HttpExceptionFilter } from "@/errors/http-exception.filter";
 import { BookingCalculatePrice } from "./dto/calculatePrice.dto";
+import { AuthJwt } from "@/ath/decorators/auth-jwt.decorator";
 
 @UseFilters(HttpExceptionFilter)
-@Controller("booking")
+@Controller("bookings")
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @AuthJwt()
   @Post("create")
   async createBooking(
     @Body() dto: BookingCreateDto,
@@ -32,13 +32,14 @@ export class BookingController {
     return await this.bookingService.createBooking(dto, user.id);
   }
 
+  @AuthJwt()
   @Get("details/:id")
-  async getBookingListById(@Param("id") id: string) {
-    return await this.bookingService.getBookingListById(id);
+  async getBookingDetails(@Param("id") id: string) {
+    return await this.bookingService.getBookingDetails(id);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get("orders")
+  @AuthJwt()
+  @Get()
   async getMyOrders(@CurrentUser() user: any) {
     return await this.bookingService.getMyOrders(user.id as string);
   }
@@ -50,6 +51,7 @@ export class BookingController {
     return await this.bookingService.calculatePrice(dto);
   }
 
+  @AuthJwt()
   @Delete("cancel/:id")
   async cancel(@Param("id") id: string, @CurrentUser() user: any) {
     return await this.bookingService.cancelBooking(id, user);

@@ -1,11 +1,11 @@
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app/app.module";
-import * as cookieParser from "cookie-parser";
+import { join } from "path";
 import { BadRequestException, Logger, ValidationPipe } from "@nestjs/common";
+import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";
 import * as passport from "passport";
-import { join } from "path";
+import { AppModule } from "./app/app.module";
 
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
@@ -64,12 +64,12 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-  origin: clientUrl,
-  credentials: true,
-  exposedHeaders: ['set-cookie'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  methods: ['GET', 'POST', 'OPTIONS']
-});
+    origin: clientUrl,
+    credentials: true,
+    exposedHeaders: ["set-cookie"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "OPTIONS"],
+  });
 
   app.use(
     session({
@@ -84,7 +84,7 @@ async function bootstrap() {
   app.use(passport.session());
 
   app.setGlobalPrefix("api");
-  
+
   await app.listen(PORT, "0.0.0.0");
   logger.log("Application is running on port: ", PORT);
 }

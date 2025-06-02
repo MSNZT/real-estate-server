@@ -7,7 +7,7 @@ export interface ResetPasswordPayload {
   email: string;
 }
 
-export interface RegisterOAuthTokenResponse {
+export interface AuthTokenPayload {
   email: string;
   name: string;
 }

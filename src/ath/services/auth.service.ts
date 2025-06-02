@@ -5,7 +5,6 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { compareSync } from "bcrypt";
@@ -16,13 +15,10 @@ import { MailService } from "@/mail/mail.service";
 import { TokenService } from "@/token/token.service";
 import { RegisterDto } from "../dto/register.dto";
 import { LoginDto } from "../dto/login.dto";
-import { ResetPasswordPayload, TokensResponse } from "../types/token.types";
+import { AuthTokenPayload, TokensResponse } from "../types/token.types";
 import { EmailDto } from "../dto/base.dto";
 import { ResetPasswordDto, ValidateCodeDto } from "../dto/reset-password.dto";
-import { removeTokenFromCookie } from "../utils/removeTokenFromCookies";
-import { Response } from "express";
 import { randomInt } from "crypto";
-import { EXPIRES_REGISTER_CODE } from "../const/expires";
 
 @Injectable()
 export class AuthService {
@@ -60,7 +56,11 @@ export class AuthService {
   async login(dto: LoginDto): Promise<{ user: User; tokens: TokensResponse }> {
     try {
       const existingUser = await this.userService.findByEmail(dto.email);
-      if (!existingUser || !compareSync(dto.password, existingUser.password)) {
+      if (
+        !existingUser ||
+        !existingUser.password ||
+        !compareSync(dto.password, existingUser.password)
+      ) {
         throw new UnauthorizedException("Неверный email или пароль");
       }
       const tokens = await this.generateUserTokens(existingUser);
@@ -69,6 +69,7 @@ export class AuthService {
         tokens,
       };
     } catch (error) {
+      this.logger.error("Ошибка при авторизации", error);
       if (error.status && error.status === 401) {
         throw error;
       }
@@ -81,9 +82,8 @@ export class AuthService {
       const user = await this.userService.findByEmail(email);
       return user;
     } catch (error) {
-      this.logger.error("Ошибка при проверки токена доступа", error);
-      // removeTokenFromCookie(res, "refreshToken", this.configService);
-      throw new UnauthorizedException("Отсутствует токен доступа 444");
+      this.logger.error("Пользователь не авторизован", error);
+      throw new UnauthorizedException("Не авторизован");
     }
   }
 
@@ -145,7 +145,18 @@ export class AuthService {
     }
   }
 
-  async generateUserTokens(user: User): Promise<TokensResponse> {
+  async refreshToken(refreshToken: string): Promise<TokensResponse> {
+    try {
+      const payload =
+        await this.jwtService.verifyAsync<AuthTokenPayload>(refreshToken);
+      if (!payload) throw new UnauthorizedException("Нет доступа");
+      return await this.generateUserTokens(payload);
+    } catch (error) {}
+  }
+
+  async generateUserTokens(
+    user: Pick<User, "email" | "name">,
+  ): Promise<TokensResponse> {
     const payload = {
       email: user.email,
       name: user.name,
