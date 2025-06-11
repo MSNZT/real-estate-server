@@ -148,17 +148,12 @@ export class AdService {
   }
 
   async getById(id: string): Promise<Ad> {
-    console.log(id);
+    console.log("adId", id);
 
     try {
-      const ad = await this.prismaService.ad.update({
+      const ad = await this.prismaService.ad.findUnique({
         where: {
           id,
-        },
-        data: {
-          views: {
-            increment: 1,
-          },
         },
         include: {
           owner: true,
@@ -169,6 +164,7 @@ export class AdService {
           contact: true,
         },
       });
+      console.log("ad", ad)
       return this.filterContact(ad);
     } catch (e) {
       if (
