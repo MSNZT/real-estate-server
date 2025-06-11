@@ -10,7 +10,7 @@ async function main() {
   await prisma.propertyDetails.deleteMany();
   await prisma.ad.deleteMany();
 
-  await prisma.ad.create({
+  const ad = await prisma.ad.create({
     data: {
       title: 'Уютная квартира в центре Москвы',
       description: 'Просторная 2-комнатная квартира с ремонтом рядом с метро',
@@ -74,6 +74,7 @@ async function main() {
       }
     },
   });
+  console.log(ad)
 }
 
 main()
