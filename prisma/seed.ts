@@ -4,27 +4,23 @@ import { AdTypes, PropertyTypes } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Очищаем только связанные с объявлениями таблицы (опционально)
   await prisma.booking.deleteMany();
   await prisma.favoriteAd.deleteMany();
   await prisma.deal.deleteMany();
   await prisma.propertyDetails.deleteMany();
   await prisma.ad.deleteMany();
 
-  // Создаем объявление с вложенными сущностями
   await prisma.ad.create({
     data: {
       title: 'Уютная квартира в центре Москвы',
       description: 'Просторная 2-комнатная квартира с ремонтом рядом с метро',
-      mainPhoto: "https://yandex.ru/images/touch/search?text=%D1%84%D0%BE%D1%82%D0%BE+%D0%BA%D0%B2%D0%B0%D1%80%D1%82%D0%B8%D1%80%D1%8B+%D0%B2%D0%BD%D1%83%D1%82%D1%80%D0%B8&pos=9&rpt=simage&img_url=https%3A%2F%2Fgedcdn.gdeetotdom.ru%2Fb%2F3d71c39b3704f7fff811e072e5c36f0b-rb1920x980.jpeg&lr=236"
+      mainPhoto: "https://yandex.ru/images/touch/search?text=%D1%84%D0%BE%D1%82%D0%BE+%D0%BA%D0%B2%D0%B0%D1%80%D1%82%D0%B8%D1%80%D1%8B+%D0%B2%D0%BD%D1%83%D1%82%D1%80%D0%B8&pos=9&rpt=simage&img_url=https%3A%2F%2Fgedcdn.gdeetotdom.ru%2Fb%2F3d71c39b3704f7fff811e072e5c36f0b-rb1920x980.jpeg&lr=236",
       photos: [
         "https://yandex.ru/images/touch/search?text=фото+квартиры+внутри&pos=1&rpt=simage&img_url=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F45%2F01%2F8c%2F45018cad5162443578e187229b86afbb.jpg&lr=236"
       ],
       adType: "rent_short",
       propertyType: "apartment",
       features: ['wifi', 'tv'],
-      
-      // Создаем локацию прямо здесь
       location: {
         create: {
           latitude: 55.7558,
@@ -33,29 +29,23 @@ async function main() {
           address: 'ул. Тверская, 10',
         }
       },
-      
-      // Создаем пользователя прямо здесь
       owner: {
         create: {
-          email: 'moscow-owner@example.com',
-          password: '$2a$10$EXAMPLEHASHEDPASSWORD',
+          email: 'test@mail.ru',
+          password: '123456',
           name: 'Иван Иванов',
-          phone: '+79991234567',
-          roles: 'USER',
+          phone: '+79991234567'
         }
       },
       
-      // Создаем контакт прямо здесь
       contact: {
         create: {
           name: 'Иван (контактное лицо)',
-          email: 'moscow-contact@example.com',
+          email: 'test@email.ru',
           phone: '+79991234567',
-          communication: 'phone,telegram',
+          communication: 'calls-andessages',
         }
       },
-      
-      // Создаем сделку
       deal: {
         create: {
           price: 8000,
@@ -65,7 +55,6 @@ async function main() {
         }
       },
       
-      // Создаем детали недвижимости
       propertyDetails: {
         create: {
           fields: {
