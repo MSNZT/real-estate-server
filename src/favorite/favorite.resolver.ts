@@ -4,7 +4,11 @@ import { User } from "@prisma/client";
 import { GqlAuthGuard } from "@/auth/guards/graphql-auth-guard";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { FavoriteService } from "./favorite.service";
-import { FavoriteAd, ToggleFavoriteResponse } from "./model/favorite.model";
+import {
+  FavoriteAd,
+  SyncFavorites,
+  ToggleFavoriteResponse,
+} from "./model/favorite.model";
 import { UnauthorizedExceptionFilter } from "@/ad/filters/unauthorizedExceptionFilter";
 import { GraphQLExceptionFilter } from "@/lib/filters/graphql-exception-filter";
 
@@ -27,5 +31,14 @@ export class FavoriteResolver {
   @Query(() => [FavoriteAd], { name: "getFavoriteAds" })
   async getFavoriteAds(@CurrentUser() user: Pick<User, "id">) {
     return this.favoriteService.getFavoriteAds(user.id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => SyncFavorites, { name: "syncFavorites" })
+  async syncFavorites(
+    @Args("ids", { type: () => [String] }) ids: string[],
+    @CurrentUser() user: Pick<User, "id">,
+  ) {
+    return await this.favoriteService.syncFavorites(ids, user.id);
   }
 }

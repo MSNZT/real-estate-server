@@ -3,6 +3,9 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
 export class ToggleFavoriteResponse {
+  @Field(() => ID)
+  id: string;
+
   @Field(() => String)
   status: string;
 }
@@ -26,4 +29,10 @@ export class FavoriteAd {
 
   @Field()
   updatedAt: Date;
+}
+
+@ObjectType()
+export class SyncFavorites {
+  @Field(() => Boolean)
+  status: boolean;
 }

@@ -22,8 +22,6 @@ export class FavoriteService {
         },
       });
 
-      console.log(favorites);
-
       if (favorites.length) {
         return favorites;
       }
@@ -46,10 +44,41 @@ export class FavoriteService {
       });
 
       if (existingFavorite) {
-        return await this.deleteFromFavorite(existingFavorite.id);
+        return await this.deleteFromFavorite(adId, existingFavorite.id);
       } else {
         return await this.addToFavorite(adId, userId);
       }
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async syncFavorites(ids: string[], userId: string) {
+    try {
+      const existingAds = await this.prismaService.ad.findMany({
+        where: {
+          id: { in: ids },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      const existingIds = existingAds.map((ad) => ad.id);
+
+      for (const adId of existingIds) {
+        await this.prismaService.favoriteAd.upsert({
+          where: {
+            adId_userId: { adId, userId },
+          },
+          update: {},
+          create: { adId, userId },
+        });
+      }
+      return {
+        status: true,
+      };
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -75,6 +104,7 @@ export class FavoriteService {
         },
       });
       return {
+        id: adId,
         status: "added",
       };
     } catch (error) {
@@ -83,7 +113,7 @@ export class FavoriteService {
     }
   }
 
-  private async deleteFromFavorite(favoriteId: string) {
+  private async deleteFromFavorite(adId: string, favoriteId: string) {
     try {
       await this.prismaService.favoriteAd.delete({
         where: {
@@ -92,7 +122,8 @@ export class FavoriteService {
       });
 
       return {
-        status: "removed",
+        id: adId,
+        status: "deleted",
       };
     } catch (error) {
       this.logger.error("Ошибка при удалении из избранных", error);

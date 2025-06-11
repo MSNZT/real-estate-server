@@ -1,12 +1,15 @@
-import { Controller, Get, Logger } from "@nestjs/common";
+import { Controller, Get, Logger, Query } from "@nestjs/common";
 
 @Controller("health")
 export class HealthController {
   logger = new Logger(HealthController.name);
 
   @Get()
-  checkHealth() {
-    this.logger.log("Health check ping", new Date().toISOString());
-    return { status: "ok", timestamp: new Date().toISOString() };
+  checkHealth(@Query("test") test: string) {
+    console.log(test);
+    this.logger.error("Health check ping", new Date().toISOString());
+    this.logger.log("Вызов checkHealth");
+
+    return { status: "false", timestamp: new Date().toISOString() };
   }
 }

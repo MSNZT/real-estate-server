@@ -71,6 +71,8 @@ export class AdService {
   }
 
   async getAll(filter: AdFilterInput) {
+    console.log("all", filter);
+
     const where = this.buildWhereClause(filter);
     const queryOptions = this.getQueryOptions(filter);
 
@@ -179,6 +181,38 @@ export class AdService {
     }
   }
 
+  async getAdsByIds(ids: string[]): Promise<Ad[]> {
+    try {
+      const ads = await this.prismaService.ad.findMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+        include: {
+          owner: true,
+          location: true,
+          propertyDetails: true,
+          booking: true,
+          deal: true,
+          contact: true,
+        },
+      });
+      if (!ads.length) {
+        return [];
+      }
+      return ads;
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === "P2025"
+      ) {
+        throw new NotFoundException("Объявление с таким id не найдено");
+      }
+      throw new InternalServerErrorException("Ошибка сервера");
+    }
+  }
+
   async update(adId: string, dto: UpdateAdInput, userId: string) {
     try {
       const ad = await this.prismaService.ad.findFirst({
@@ -274,6 +308,8 @@ export class AdService {
   private buildWhereClause(filter: AdFilterInput): Prisma.AdWhereInput {
     const conditions: Prisma.AdWhereInput[] = [];
 
+    console.log(filter);
+
     if (filter.ids) {
       conditions.push({
         id: { in: filter.ids },
@@ -281,7 +317,7 @@ export class AdService {
     }
 
     if (filter.location) {
-      const { fields } = filter.location;
+      const { fields, city } = filter.location;
 
       if (fields) {
         const { latitudeRange, longitudeRange } = fields;
@@ -307,6 +343,14 @@ export class AdService {
                 },
               },
             ],
+          },
+        });
+      }
+
+      if (city) {
+        conditions.push({
+          location: {
+            city,
           },
         });
       }

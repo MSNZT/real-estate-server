@@ -1,28 +1,40 @@
 import { Controller, Get, Param, Post, Body } from "@nestjs/common";
 import { ChatService } from "./chat.service";
+import { AuthJwt } from "@/ath/decorators/auth-jwt.decorator";
+import { CurrentUser } from "@/user/decorators/current-user";
+import { User } from "@prisma/client";
 
+@AuthJwt()
 @Controller("chat")
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  // Получение всех чатов
-  @Get()
-  getAllChats() {
-    return this.chatService.getAllChats();
+  @Get("list")
+  async getChatList(@CurrentUser() user: Pick<User, "id">) {
+    return this.chatService.getChatList(user.id);
   }
 
-  // Получение сообщений для определенного чата по chatId
-  @Get(":chatId/messages")
-  getMessages(@Param("chatId") chatId: string) {
-    return this.chatService.getMessages(chatId);
-  }
-
-  // Создание нового сообщения в чате
-  @Post(":chatId/messages")
-  sendMessage(
-    @Param("chatId") chatId: string,
-    @Body() messageDto: { senderId: string; content: string },
+  @Get(":id")
+  async getChatById(
+    @Param("id") chatId: string,
+    @CurrentUser() user: Pick<User, "id">,
   ) {
-    return this.chatService.addMessage(chatId, messageDto);
+    return this.chatService.getChatById(chatId, user.id);
+  }
+
+  @Post("join")
+  async joinToChat(
+    @CurrentUser() user: Pick<User, "id">,
+    @Body() userId: string,
+  ) {
+    return this.chatService.joinToChat(userId, user.id);
+  }
+
+  @Get(":chatId/messages")
+  async getMessages(
+    @Param("chatId") chatId: string,
+    @CurrentUser() user: Pick<User, "id">,
+  ) {
+    return this.chatService.getMessages(chatId, user.id);
   }
 }

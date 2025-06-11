@@ -42,6 +42,13 @@ export class AdResolver {
     return await this.adService.getById(id);
   }
 
+  @Query(() => [Ad], { name: "getAdsByIds" })
+  async getAdsByIds(
+    @Args("ids", { type: () => [String] }) ids: string[],
+  ): Promise<Ad[]> {
+    return await this.adService.getAdsByIds(ids);
+  }
+
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Ad, { name: "updateAd" })
   async updateAd(

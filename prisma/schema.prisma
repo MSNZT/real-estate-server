@@ -28,10 +28,47 @@ model User {
   resetPasswordCode   String?
   resetPasswordExpires DateTime?
 
+  chatsAsUser1 Chat[] @relation("User1Chats")
+  chatsAsUser2 Chat[] @relation("User2Chats")
+
+  messages Message[] @relation("UserMessages")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("user")
+}
+
+model Chat {
+  id String @id @default(cuid())
+
+
+  userId1 String
+  userId2 String
+
+  user1 User @relation("User1Chats",fields: [userId1], references: [id])
+  user2 User @relation("User2Chats",fields: [userId2], references: [id])
+  messages Message[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@unique([userId1, userId2])
+  @@map("chat")
+}
+
+model Message {
+  id String @id @default(cuid())
+  text String
+  author User @relation("UserMessages", fields: [authorId], references: [id])
+  authorId String
+
+  chat Chat @relation(fields: [chatId], references: [id])
+  chatId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("message")
 }
 
 model Ad {
@@ -190,7 +227,7 @@ model Token {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([createdAt]) // Важно для производительности
+  @@index([createdAt])
   @@index([used])
   @@map("token")
 }
