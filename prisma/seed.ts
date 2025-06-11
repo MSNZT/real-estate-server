@@ -18,7 +18,7 @@ async function main() {
   await prisma.location.deleteMany();
   await prisma.user.deleteMany();
 
-  const hashPassword = await hash(dto.password, 6)
+  const hashPassword = await hash("123456", 6)
 
   const ad = await prisma.ad.create({
     data: {
