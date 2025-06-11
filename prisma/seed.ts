@@ -4,11 +4,18 @@ import { AdTypes, PropertyTypes } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.token.deleteMany();
+  await prisma.message.deleteMany();
+  await prisma.chat.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.favoriteAd.deleteMany();
+  await prisma.review.deleteMany();
   await prisma.deal.deleteMany();
   await prisma.propertyDetails.deleteMany();
   await prisma.ad.deleteMany();
+  await prisma.contact.deleteMany();
+  await prisma.location.deleteMany();
+  await prisma.user.deleteMany();
 
   const ad = await prisma.ad.create({
     data: {
