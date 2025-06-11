@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { AdTypes, PropertyTypes } from '@prisma/client';
+import { hash } from "bcrypt"
 
 const prisma = new PrismaClient();
 
@@ -17,13 +18,15 @@ async function main() {
   await prisma.location.deleteMany();
   await prisma.user.deleteMany();
 
+  const hashPassword = await hash(dto.password, 6)
+
   const ad = await prisma.ad.create({
     data: {
       title: 'Уютная квартира в центре Москвы',
       description: 'Просторная 2-комнатная квартира с ремонтом рядом с метро',
-      mainPhoto: "https://yandex.ru/images/touch/search?text=%D1%84%D0%BE%D1%82%D0%BE+%D0%BA%D0%B2%D0%B0%D1%80%D1%82%D0%B8%D1%80%D1%8B+%D0%B2%D0%BD%D1%83%D1%82%D1%80%D0%B8&pos=9&rpt=simage&img_url=https%3A%2F%2Fgedcdn.gdeetotdom.ru%2Fb%2F3d71c39b3704f7fff811e072e5c36f0b-rb1920x980.jpeg&lr=236",
+      mainPhoto: "https://avatars.mds.yandex.net/i?id=ce4ea36ba95804bfdf987ccf8d9094fb_l-5318694-images-thumbs&n=13",
       photos: [
-        "https://yandex.ru/images/touch/search?text=фото+квартиры+внутри&pos=1&rpt=simage&img_url=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F45%2F01%2F8c%2F45018cad5162443578e187229b86afbb.jpg&lr=236"
+        "https://idei.club/uploads/posts/2021-10/1633363428_58-idei-club-p-kvartira-s-remontom-i-mebelyu-interer-kras-60.jpg"
       ],
       adType: "rent_short",
       propertyType: "apartment",
@@ -39,7 +42,7 @@ async function main() {
       owner: {
         create: {
           email: 'test@mail.ru',
-          password: '123456',
+          password: hashPassword,
           name: 'Иван Иванов',
           phone: '+79991234567'
         }
@@ -48,7 +51,7 @@ async function main() {
       contact: {
         create: {
           name: 'Иван (контактное лицо)',
-          email: 'test@email.ru',
+          email: 'test@mail.ru',
           phone: '+79991234567',
           communication: 'calls-andessages',
         }
