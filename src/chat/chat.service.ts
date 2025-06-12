@@ -88,6 +88,7 @@ export class ChatService {
   }
 
   async joinToChat(userId: string, userId2: string): Promise<string> {
+    console.log("Test join chat", userId, userId2)
     try {
       if (userId === userId2) {
         throw new BadRequestException("Нельзя создать чат с самим собой");
