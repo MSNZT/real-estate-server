@@ -53,7 +53,7 @@ async function main() {
           name: 'Иван (контактное лицо)',
           email: 'test@mail.ru',
           phone: '+79991234567',
-          communication: 'calls-andessages',
+          communication: 'calls-and-message',
         }
       },
       deal: {
