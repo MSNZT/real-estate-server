@@ -25,9 +25,9 @@ export class ChatController {
   @Post("join")
   async joinToChat(
     @CurrentUser() user: Pick<User, "id">,
-    @Body() userId: string,
+    @Body() dto: any,
   ) {
-    return this.chatService.joinToChat(userId, user.id);
+    return this.chatService.joinToChat(dto, user.id);
   }
 
   @Get(":chatId/messages")
