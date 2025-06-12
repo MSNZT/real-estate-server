@@ -87,21 +87,21 @@ export class ChatService {
     }
   }
 
-  async joinToChat(userId: string, userId2: string): Promise<string> {
-    console.log("Test join chat", userId, userId2)
+  async joinToChat(dto: any, userId2: string): Promise<string> {
+    console.log("Test join chat", dto.usetId, userId2)
     try {
-      if (userId.userId === userId2) {
+      if (dto.userId === userId2) {
         throw new BadRequestException("Нельзя создать чат с самим собой");
       }
       let chat = await this.prismaService.chat.findUnique({
         where: {
-          userId1_userId2: { userId1: userId.userId, userId2 },
+          userId1_userId2: { userId1: dto.userId, userId2 },
         },
       });
       if (!chat) {
         chat = await this.prismaService.chat.create({
           data: {
-            userId1: userId,
+            userId1: dto.userId,
             userId2,
           },
         });
