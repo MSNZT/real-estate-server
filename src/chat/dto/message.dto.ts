@@ -4,3 +4,7 @@ export class MessageDto {
   date: string;
   channelId: string;
 }
+
+export class UserDto {
+  userId: string;
+}

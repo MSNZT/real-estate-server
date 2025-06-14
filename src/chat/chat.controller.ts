@@ -3,6 +3,7 @@ import { ChatService } from "./chat.service";
 import { AuthJwt } from "@/ath/decorators/auth-jwt.decorator";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
+import { UserDto } from "./dto/message.dto";
 
 @AuthJwt()
 @Controller("chat")
@@ -25,7 +26,7 @@ export class ChatController {
   @Post("join")
   async joinToChat(
     @CurrentUser() user: Pick<User, "id">,
-    @Body() dto: any,
+    @Body() dto: UserDto,
   ) {
     return this.chatService.joinToChat(dto, user.id);
   }

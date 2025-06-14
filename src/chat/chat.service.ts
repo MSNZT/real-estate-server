@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { MessageDto } from "./dto/message.dto";
+import { MessageDto, UserDto } from "./dto/message.dto";
 
 export interface Message {
   senderId: string;
@@ -35,6 +35,8 @@ export class ChatService {
           },
         },
       });
+
+      console.log("chats", chats);
 
       if (chats.length) {
         return chats.map((chat) => {
@@ -87,8 +89,7 @@ export class ChatService {
     }
   }
 
-  async joinToChat(dto: any, userId2: string): Promise<string> {
-    console.log("Test join chat", dto.usetId, userId2)
+  async joinToChat(dto: UserDto, userId2: string): Promise<string> {
     try {
       if (dto.userId === userId2) {
         throw new BadRequestException("Нельзя создать чат с самим собой");

@@ -12,7 +12,8 @@ import { ChatService } from "./chat.service";
 import { MessageDto } from "./dto/message.dto";
 
 @WebSocketGateway({
-  namespace: "/chat",
+  namespace: "/api/chat",
+
   cors: { origin: "*" },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -96,12 +97,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: MessageDto,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log("kek", client.id);
+
     const channelId = message.channelId;
     console.log("Channel", channelId);
     const response = await this.chatService.sendMessage(message);
     console.log(response);
 
     this.server.to(channelId).emit("newMessage", response);
+    this.server.to("fBXiLAgFysn8t4nfAAAB").emit("newMessage", response);
   }
 
   @SubscribeMessage("getOnlineStatus")
