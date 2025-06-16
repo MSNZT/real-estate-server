@@ -18,7 +18,7 @@ export class OAuthController {
 
   @Get("google")
   @AuthGoogle()
-  async googleAuth(@Req() req) {}
+  async googleAuth() {}
 
   @Get("google/callback")
   @AuthGoogle()
@@ -26,27 +26,20 @@ export class OAuthController {
     @Req() req: Request & { user: OAuthProfile },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const response = await this.oauthService.loginWithSocial(req.user);
-    if (response?.userId) {
-      setTokenToCookie(
-        res,
-        "refreshToken",
-        response.refreshToken,
-        EXPIRES_REFRESH_TOKEN,
-        this.configService,
-      );
-      return res.redirect(
-        `${this.configService.getOrThrow("CLIENT_URL")}/?token=${response.accessToken}`,
-      );
-    }
+    return await this.OAuthLoginOrRegister(req, res);
+  }
 
-    const registerToken = await this.oauthService.generateRegisterToken(
-      req.user,
-    );
+  @AuthYandex()
+  @Get("yandex")
+  async yandexAuth() {}
 
-    return res.redirect(
-      `${process.env.CLIENT_URL}/auth/register/oauth?token=${registerToken}`,
-    );
+  @AuthYandex()
+  @Get("yandex/callback")
+  async yandexAuthCallback(
+    @Req() req: Request & { user: OAuthProfile },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return await this.OAuthLoginOrRegister(req, res);
   }
 
   @Get("validate")
@@ -80,7 +73,30 @@ export class OAuthController {
     };
   }
 
-  @AuthYandex()
-  @Get("yandex/callback")
-  async yandexAuthCallback() {}
+  private async OAuthLoginOrRegister(
+    req: Request & { user: OAuthProfile },
+    res: Response,
+  ) {
+    const response = await this.oauthService.loginWithSocial(req.user);
+    if (response?.userId) {
+      setTokenToCookie(
+        res,
+        "refreshToken",
+        response.refreshToken,
+        EXPIRES_REFRESH_TOKEN,
+        this.configService,
+      );
+      return res.redirect(
+        `${this.configService.getOrThrow("CLIENT_URL")}/moscow/?token=${response.accessToken}`,
+      );
+    }
+
+    const registerToken = await this.oauthService.generateRegisterToken(
+      req.user,
+    );
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/auth/register/oauth?token=${registerToken}`,
+    );
+  }
 }

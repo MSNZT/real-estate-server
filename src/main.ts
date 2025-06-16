@@ -42,22 +42,22 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      whitelist: false,
+      whitelist: true,
       forbidNonWhitelisted: true,
-      exceptionFactory: (errors) => {
-        logger.error("Validation errors", errors);
-        const formattedErrors = errors.reduce((acc, err) => {
-          if (err.constraints) {
-            acc[err.property] = Object.values(err.constraints);
-          } else {
-            logger.warn(`No constraints for property: ${err.property}`);
-            acc[err.property] = ["Неизвестная ошибка валидации"];
-          }
-          return acc;
-        }, {});
-        logger.error("Formatted errors", formattedErrors);
-        return new BadRequestException(formattedErrors);
-      },
+      // exceptionFactory: (errors) => {
+      //   logger.error("Validation errors", errors);
+      //   const formattedErrors = errors.reduce((acc, err) => {
+      //     if (err.constraints) {
+      //       acc[err.property] = Object.values(err.constraints);
+      //     } else {
+      //       logger.warn(`No constraints for property: ${err.property}`);
+      //       acc[err.property] = ["Неизвестная ошибка валидации"];
+      //     }
+      //     return acc;
+      //   }, {});
+      //   logger.error("Formatted errors", formattedErrors);
+      //   return new BadRequestException(formattedErrors);
+      // },
     }),
   );
 

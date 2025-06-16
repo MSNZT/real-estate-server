@@ -1,19 +1,19 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsISO8601, IsNumber, IsString } from "class-validator";
 
 export class BookingCreateDto {
-  @IsNotEmpty({ message: "Необходимо указать id объявления" })
+  @IsString({ message: "Необходимо указать id объявления" })
   adId: string;
 
-  @IsNotEmpty({ message: "Необходимо указать дату начала аренды" })
-  // @IsDateDMY()
-  @IsString()
+  @IsISO8601(
+    { strict: true },
+    { message: "Необходимо указать startDate в формате ISO" },
+  )
   startDate: string;
 
-  @IsNotEmpty({
-    message: `В поле "endDate" необходимо указать дату окончания аренды`,
-  })
-  // @IsDateDMY()
-  @IsString()
+  @IsISO8601(
+    { strict: true },
+    { message: "Необходимо указать endDate в формате ISO" },
+  )
   endDate: string;
 
   @IsString()

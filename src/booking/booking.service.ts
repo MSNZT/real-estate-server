@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -64,7 +65,7 @@ export class BookingService {
       });
 
       if (booking.length > 0) {
-        throw new BadRequestException("На текущую дату бронирования мест нет");
+        throw new ConflictException("Текущий диапазон дат забронирован");
       }
 
       return await this.prismaService.booking.create({
@@ -88,7 +89,7 @@ export class BookingService {
     }
   }
 
-  async getBookingDetails(id: string) {
+  async getOccupiedDates(id: string) {
     try {
       const today = new Date();
       const firstDayOfCurrentMonth = new Date(

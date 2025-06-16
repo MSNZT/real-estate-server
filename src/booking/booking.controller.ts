@@ -6,11 +6,9 @@ import {
   Param,
   Post,
   UseFilters,
-  UseGuards,
 } from "@nestjs/common";
 import { User } from "@prisma/client";
 
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth-guard";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { BookingService } from "./booking.service";
 import { BookingCreateDto } from "./dto/booking-create.dto";
@@ -32,14 +30,14 @@ export class BookingController {
     return await this.bookingService.createBooking(dto, user.id);
   }
 
-  @AuthJwt()
-  @Get("details/:id")
-  async getBookingDetails(@Param("id") id: string) {
-    return await this.bookingService.getBookingDetails(id);
+  @Get("occupied-dates/:id")
+  async getOccupiedDates(@Param("id") id: string) {
+    console.log("occupied");
+    return await this.bookingService.getOccupiedDates(id);
   }
 
   @AuthJwt()
-  @Get()
+  @Get("orders")
   async getMyOrders(@CurrentUser() user: any) {
     return await this.bookingService.getMyOrders(user.id as string);
   }
