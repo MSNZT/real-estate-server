@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriverConfig } from "@nestjs/apollo";
@@ -12,12 +12,16 @@ import { AuthModule } from "@/ath/auth.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { FavoriteModule } from "@/favorite/favorite.module";
 import { HealthModule } from "@/health/health.module";
+import { HttpLogger } from "./common/logger/http.logger";
+import { WinstonConfig } from "./common/logger/winston.config";
+import { LoggerModule } from "./common/logger/logger.module";
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    LoggerModule.forRoot(),
     ChatModule,
     AuthModule,
     UserModule,
@@ -27,5 +31,10 @@ import { HealthModule } from "@/health/health.module";
     FavoriteModule,
     HealthModule,
   ],
+  providers: [WinstonConfig],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLogger).forRoutes("*");
+  }
+}

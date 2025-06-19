@@ -9,13 +9,15 @@ import { AppModule } from "./app/app.module";
 
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
+import { StrictValidationPipe } from "./app/pipes/strict-validation.pipe";
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const logger = new Logger("Bootstrap");
   const configService = app.get(ConfigService);
   const clientUrl = configService.getOrThrow("CLIENT_URL");
   const PORT = configService.get("PORT") || 3000;
+  const logger = app.get(WINSTON_MODULE_PROVIDER);
 
   app.use((err, req, res, next) => {
     if (
@@ -39,27 +41,7 @@ async function bootstrap() {
     prefix: "/assets",
   });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      // exceptionFactory: (errors) => {
-      //   logger.error("Validation errors", errors);
-      //   const formattedErrors = errors.reduce((acc, err) => {
-      //     if (err.constraints) {
-      //       acc[err.property] = Object.values(err.constraints);
-      //     } else {
-      //       logger.warn(`No constraints for property: ${err.property}`);
-      //       acc[err.property] = ["Неизвестная ошибка валидации"];
-      //     }
-      //     return acc;
-      //   }, {});
-      //   logger.error("Formatted errors", formattedErrors);
-      //   return new BadRequestException(formattedErrors);
-      // },
-    }),
-  );
+  app.useGlobalPipes(new StrictValidationPipe(logger));
 
   app.use(cookieParser());
 
@@ -84,10 +66,9 @@ async function bootstrap() {
   app.use(passport.session());
 
   app.setGlobalPrefix("api");
-  // app.
 
   await app.listen(PORT, "0.0.0.0");
-  logger.log("Application is running on port: ", PORT);
+  console.log("Application is running on port: ", PORT);
 }
 
 bootstrap();

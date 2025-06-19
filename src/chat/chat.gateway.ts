@@ -81,7 +81,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     client.join(data.channelId);
-    console.log("join", data.channelId);
+    console.log("join to channel", data.channelId);
   }
 
   @SubscribeMessage("leave")

@@ -28,6 +28,7 @@ export class ChatController {
     @CurrentUser() user: Pick<User, "id">,
     @Body() dto: UserDto,
   ) {
+    console.log("auuu");
     return this.chatService.joinToChat(dto, user.id);
   }
 

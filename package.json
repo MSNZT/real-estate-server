@@ -49,13 +49,16 @@
     "graphql": "^16.10.0",
     "graphql-type-json": "^0.3.2",
     "multer": "^1.4.5-lts.2",
+    "nest-winston": "^1.10.2",
     "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-yandex": "^0.0.5",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.7",
@@ -73,6 +76,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/socket.io": "^3.0.2",
     "@types/supertest": "^6.0.0",
+    "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.42.0",
