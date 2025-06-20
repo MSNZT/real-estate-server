@@ -141,6 +141,9 @@ export class ChatService {
         include: {
           messages: {
             take: 40,
+            orderBy: {
+              createdAt: "desc",
+            },
           },
           user1: true,
           user2: true,

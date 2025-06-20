@@ -27,7 +27,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private mailService: MailService
+    private mailService: MailService,
   ) {}
 
   async register(dto: RegisterDto): Promise<User> {
@@ -97,11 +97,11 @@ export class AuthService {
         });
         await this.mailService.sendResetPassword(user.email, code);
       }
-      const domain = user.email.split("@")[1];
+      const domain = dto.email.split("@")[1];
       return {
         status: "complete",
         message:
-          "Если пользователь существует, мы отправим 6 значный код для сброса пароля на почтовый ящик. Если письмо не пришло, проверьте папку спам.",
+          "Если пользователь существует, мы отправим 6-значный код для сброса пароля на почтовый ящик. Письмо может попасть в спам.",
         domain,
       };
     } catch (error) {

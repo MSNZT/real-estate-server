@@ -12,11 +12,6 @@ import { STRATEGIES } from "./strategies";
 @Module({
   controllers: [AuthController, OAuthController],
   providers: [OAuthService, AuthService, ...STRATEGIES],
-  imports: [
-    UserModule,
-    // PassportModule,
-    MailModule,
-    JwtModule.registerAsync(jwtConfig)
-  ],
+  imports: [UserModule, MailModule, JwtModule.registerAsync(jwtConfig)],
 })
 export class AuthModule {}
