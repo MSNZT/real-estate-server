@@ -1,9 +1,10 @@
-import { Controller, Get, Param, Post, Body } from "@nestjs/common";
+import { Controller, Get, Param, Post, Body, Query } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { AuthJwt } from "@/ath/decorators/auth-jwt.decorator";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
 import { UserDto } from "./dto/message.dto";
+import { QueryParams } from "./query/messages.query";
 
 @AuthJwt()
 @Controller("chat")
@@ -36,7 +37,8 @@ export class ChatController {
   async getMessages(
     @Param("chatId") chatId: string,
     @CurrentUser() user: Pick<User, "id">,
+    @Query() queryParams: QueryParams,
   ) {
-    return this.chatService.getMessages(chatId, user.id);
+    return this.chatService.getMessages(chatId, user.id, queryParams);
   }
 }

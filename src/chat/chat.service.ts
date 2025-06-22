@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { MessageDto, UserDto } from "./dto/message.dto";
+import { QueryParams } from "./query/messages.query";
 
 export interface Message {
   senderId: string;
@@ -131,7 +132,9 @@ export class ChatService {
     }
   }
 
-  async getMessages(chatId: string, userId: string) {
+  async getMessages(chatId: string, userId: string, queryParams: QueryParams) {
+    const limit = +queryParams.limit || 20;
+    const cursor = queryParams.cursor;
     try {
       const response = await this.prismaService.chat.findUnique({
         where: {
@@ -140,10 +143,10 @@ export class ChatService {
         },
         include: {
           messages: {
-            take: 40,
-            orderBy: {
-              createdAt: "desc",
-            },
+            take: limit,
+            orderBy: { createdAt: "desc" },
+            cursor: cursor ? { id: cursor } : undefined,
+            skip: cursor ? 1 : 0,
           },
           user1: true,
           user2: true,
@@ -157,10 +160,14 @@ export class ChatService {
         name: isFirstUser ? response.user2.name : response.user1.name,
         id: isFirstUser ? response.user2.id : response.user1.id,
       };
+      const lastMessageId =
+        response.messages.length > 0 ? response.messages.at(-1).id : null;
 
       return {
         companion,
         messages: response.messages,
+        nextCursor: lastMessageId,
+        hasNext: response.messages.length === limit,
       };
     } catch (error) {
       this.logger.error("Ошибка при получении сообщений в чате", error);

@@ -23,7 +23,6 @@ export class AdResolver {
     @Args("filters", { nullable: true })
     filters?: AdFilterInput,
   ) {
-    console.log("aloha");
     return await this.adService.getAll(filters);
   }
 
