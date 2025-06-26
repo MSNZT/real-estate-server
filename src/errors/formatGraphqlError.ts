@@ -2,6 +2,7 @@ import { GraphQLError } from "graphql";
 
 export function formatError(error: GraphQLError) {
   const fieldMatch = error.message.match(/Field \"(.+?)\" of required type/);
+  console.log("Ошибка", error);
   if (fieldMatch) {
     return {
       message: `Отсутствует обязательное поле: ${fieldMatch[1]}`,

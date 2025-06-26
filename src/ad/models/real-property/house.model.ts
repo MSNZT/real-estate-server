@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from "@nestjs/graphql";
 import { PropertyDealTypes } from "@prisma/client";
 
 @ObjectType()
-export class RentHouseFields {
+export class HouseFieldsModel {
   @Field(() => Int)
   plotArea: number;
 

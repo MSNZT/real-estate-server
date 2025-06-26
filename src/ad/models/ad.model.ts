@@ -4,7 +4,7 @@ import { Owner } from "./owner.model";
 import { AdTypes, PropertyTypes } from "@prisma/client";
 import GraphQLJSON from "graphql-type-json";
 import { BookingModel } from "./booking.model";
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsOptional } from "class-validator";
 
 @ObjectType()
 export class AdContact {
@@ -21,21 +21,6 @@ export class AdContact {
 
   @Field(() => String)
   communication: string;
-}
-
-@ObjectType()
-export class RentHouse {
-  @Field(() => String)
-  id: string;
-
-  @Field(() => GraphQLJSON)
-  fields: any;
-
-  @Field(() => Date)
-  createdAt: Date;
-
-  @Field(() => Date)
-  updatedAt: Date;
 }
 
 @ObjectType()
@@ -70,8 +55,7 @@ export class Ad {
   @Field(() => String)
   title: string;
 
-  @Field()
-  @IsNotEmpty({ message: "Поле description обязательно для заполнения" })
+  @Field(() => String)
   description: string;
 
   @Field(() => String)
@@ -96,7 +80,7 @@ export class Ad {
   contact: AdContact;
 
   @Field(() => PropertyDetails)
-  propertyDetails?: PropertyDetails;
+  propertyDetails: PropertyDetails;
 
   @Field(() => [String])
   features: string[];

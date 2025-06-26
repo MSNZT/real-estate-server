@@ -5,35 +5,43 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { validateOrReject } from "class-validator";
-import { ClassConstructor, plainToInstance } from "class-transformer";
-import { Deal, Prisma, PropertyDetails, PropertyTypes } from "@prisma/client";
+import { Deal, Prisma, PropertyDetails } from "@prisma/client";
 import { PrismaService } from "@/prisma/prisma.service";
-import { CreateAdInput, DealInput, LocationDto } from "../dto/createAdInput";
-import { Ad } from "../model/ad.model";
-import { AdFilterInput } from "../dto/adFilterInput";
-import { UpdateAdInput } from "../dto/update.dto";
-import { propertyTypeMap } from "../map/propertyTypeMap";
-import { DealFieldsDto } from "../dto/deal.dto";
+import { CreateAdInput } from "./dto/create-ad.input";
+import { Ad } from "./models/ad.model";
+import { UpdateAdInput } from "./dto/update-ad.input";
+import { LocationService } from "@/location/location.service";
+import { AdValidatorService } from "./services/ad-validator.service";
+import { AdFilterInput } from "./dto/ad-filter.input";
+import { filterContact } from "./utils/filter-contact";
+import { mapPropertyDetailsFields } from "./map/property-details.map";
+import { mapDealFields } from "./map/deal.map";
 
 @Injectable()
 export class AdService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private locationService: LocationService,
+    private validatorService: AdValidatorService,
+  ) {}
 
-  async create(dto: CreateAdInput, userId: string): Promise<Ad> {
+  async create(dto: CreateAdInput, userId: string) {
     try {
-      const { location, propertyDetails, deal, contact, ...adData } = dto;
-      console.log(adData);
+      const { location, deal, contact, ...adData } = dto;
 
-      const propertyInstance = await this.validatePropertyDetailsFields(
-        adData.propertyType,
-        propertyDetails,
+      const propertyDetailsInstance =
+        await this.validatorService.validatePropertyDetailsFields(
+          dto.propertyType,
+          dto.propertyDetails,
+        );
+      const dealInstance = await this.validatorService.validateDeal(
+        dto.adType,
+        dto.deal,
       );
 
-      const dealInstance = await this.validateDeal(deal);
-
       return await this.prismaService.$transaction(async (prisma) => {
-        const existingLocation = await this.getOrCreateLocation(location);
+        const existingLocation =
+          await this.locationService.getOrCreateLocation(location);
 
         return prisma.ad.create({
           data: {
@@ -42,7 +50,7 @@ export class AdService {
             owner: { connect: { id: userId } },
             propertyDetails: {
               create: {
-                fields: propertyInstance as Prisma.InputJsonValue,
+                fields: propertyDetailsInstance,
               },
             },
             deal: {
@@ -111,42 +119,6 @@ export class AdService {
     }
   }
 
-  filterContact(ad: Ad): Ad {
-    const { communication, name, phone } = ad.contact;
-    const type = ad.contact.communication;
-    switch (type) {
-      case "calls-only": {
-        return {
-          ...ad,
-          contact: {
-            phone,
-            name,
-            communication,
-          },
-        };
-      }
-      case "calls-and-message": {
-        return {
-          ...ad,
-          contact: {
-            phone,
-            name,
-            communication,
-          },
-        };
-      }
-      case "message-only": {
-        return {
-          ...ad,
-          contact: {
-            name,
-            communication,
-          },
-        };
-      }
-    }
-  }
-
   async getById(id: string): Promise<Ad> {
     console.log("adId", id);
 
@@ -164,16 +136,28 @@ export class AdService {
           contact: true,
         },
       });
-      console.log("ad", ad)
-      return this.filterContact(ad);
-    } catch (e) {
-      if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === "P2025"
-      ) {
+      console.log("ad", ad);
+      if (!ad) {
         throw new NotFoundException("Объявление с таким id не найдено");
       }
-      throw new InternalServerErrorException("Ошибка сервера"); // Другие ошибки
+
+      const mappedAd = {
+        ...ad,
+        deal: {
+          ...ad.deal,
+          fields: mapDealFields(ad.adType, ad.deal.fields),
+        },
+        propertyDetails: {
+          fields: mapPropertyDetailsFields(
+            ad.propertyType,
+            ad.propertyDetails.fields,
+          ),
+        },
+      };
+
+      return filterContact(mappedAd as Ad);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -197,7 +181,26 @@ export class AdService {
       if (!ads.length) {
         return [];
       }
-      return ads;
+      return ads.map((ad) => ({
+        ...ad,
+        deal:
+          ad.deal && ad.deal.fields
+            ? {
+                ...ad.deal,
+                fields: mapDealFields(ad.adType, ad.deal.fields),
+              }
+            : ad.deal,
+        propertyDetails:
+          ad.propertyDetails && ad.propertyDetails.fields
+            ? {
+                ...ad.propertyDetails,
+                fields: mapPropertyDetailsFields(
+                  ad.propertyType,
+                  ad.propertyDetails.fields,
+                ),
+              }
+            : ad.propertyDetails,
+      })) as Ad[];
     } catch (e) {
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -227,7 +230,7 @@ export class AdService {
         );
       }
 
-      const { location, propertyDetails, deal, ...otherData } = dto;
+      const { location, deal, propertyDetails, ...otherData } = dto;
 
       const updateData = {
         ...otherData,
@@ -237,7 +240,8 @@ export class AdService {
       };
 
       if (location) {
-        const existingLocationId = await this.getOrCreateLocation(location);
+        const existingLocationId =
+          await this.locationService.getOrCreateLocation(location);
         updateData["location"] = { connect: { id: existingLocationId } };
       }
 
@@ -260,17 +264,6 @@ export class AdService {
     } catch (e) {
       throw e;
     }
-  }
-
-  async getOrCreateLocation(location: LocationDto) {
-    const existingLocation = await this.prismaService.location.upsert({
-      where: {
-        latitude_longitude_city_address: location,
-      },
-      update: {},
-      create: location,
-    });
-    return existingLocation.id;
   }
 
   private preparePropertyDetailsUpdate(
@@ -303,6 +296,7 @@ export class AdService {
 
   private buildWhereClause(filter: AdFilterInput): Prisma.AdWhereInput {
     const conditions: Prisma.AdWhereInput[] = [];
+    console.log("conditio", filter);
 
     console.log(filter);
 
@@ -315,38 +309,39 @@ export class AdService {
     if (filter.location) {
       const { fields, city } = filter.location;
 
-      if (fields) {
-        const { latitudeRange, longitudeRange } = fields;
+      // if (fields) {
+      //   const { latitudeRange, longitudeRange } = fields;
 
-        if (
-          latitudeRange[0] > latitudeRange[1] ||
-          longitudeRange[0] > longitudeRange[1]
-        ) {
-          throw new BadRequestException("Invalid coordinates range");
-        }
+      //   if (
+      //     latitudeRange[0] > latitudeRange[1] ||
+      //     longitudeRange[0] > longitudeRange[1]
+      //   ) {
+      //     throw new BadRequestException("Invalid coordinates range");
+      //   }
 
-        conditions.push({
-          location: {
-            AND: [
-              {
-                latitude: {
-                  gte: latitudeRange[0],
-                  lte: latitudeRange[1],
-                },
-                longitude: {
-                  gte: longitudeRange[0],
-                  lte: longitudeRange[1],
-                },
-              },
-            ],
-          },
-        });
-      }
+      //   conditions.push({
+      //     location: {
+      //       AND: [
+      //         {
+      //           latitude: {
+      //             gte: latitudeRange[0],
+      //             lte: latitudeRange[1],
+      //           },
+      //           longitude: {
+      //             gte: longitudeRange[0],
+      //             lte: longitudeRange[1],
+      //           },
+      //         },
+      //       ],
+      //     },
+      //   });
+      // }
 
       if (city) {
+        console.log("city", city);
         conditions.push({
           location: {
-            city,
+            city: { equals: city, mode: "insensitive" },
           },
         });
       }
@@ -405,41 +400,5 @@ export class AdService {
       conditions.push({ AND: jsonConditions });
     }
     return conditions.length ? { AND: conditions } : {};
-  }
-
-  private async validatePropertyDetailsFields(
-    propertyType: PropertyTypes,
-    propertyDetails: Ad["propertyDetails"],
-  ) {
-    const propertyClass = propertyTypeMap.get(propertyType);
-    if (!propertyClass) {
-      throw new BadRequestException("Неверный тип свойства");
-    }
-
-    const propertyInstance = plainToInstance(
-      propertyClass as unknown as ClassConstructor<object>,
-      propertyDetails.fields,
-      {
-        excludeExtraneousValues: true,
-      },
-    );
-    await validateOrReject(propertyInstance);
-    return propertyInstance;
-  }
-
-  private async validateDeal(deal: DealInput) {
-    const { price, fields } = deal;
-    const dealFieldsInstance = plainToInstance(
-      DealFieldsDto as unknown as ClassConstructor<object>,
-      fields,
-      {
-        excludeExtraneousValues: true,
-      },
-    );
-    await validateOrReject(dealFieldsInstance);
-    return {
-      fields: dealFieldsInstance as Prisma.InputJsonValue,
-      price,
-    };
   }
 }

@@ -9,7 +9,6 @@ import {
 } from "class-validator";
 import { Transform, Type } from "class-transformer";
 import GraphQLJSON from "graphql-type-json";
-import { PriceScalar } from "@/ad/dto/price";
 
 @InputType()
 class PriceFilter {

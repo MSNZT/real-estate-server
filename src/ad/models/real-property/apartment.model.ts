@@ -1,10 +1,7 @@
 import { ObjectType, Field, Int } from "@nestjs/graphql";
 
 @ObjectType()
-export class RentApartment {
-  @Field(() => String)
-  id: string;
-
+export class ApartmentFieldsModel {
   @Field(() => String)
   rooms: string;
 
@@ -14,16 +11,16 @@ export class RentApartment {
   @Field(() => String)
   renovation: string;
 
-  @Field(() => Int)
+  @Field(() => Number)
   ceilingHeight: number;
 
-  @Field(() => Int)
+  @Field(() => Number)
   totalArea: number;
 
-  @Field(() => Int)
+  @Field(() => Number)
   livingArea: number;
 
-  @Field(() => Int)
+  @Field(() => Number)
   kitchenArea: number;
 
   @Field(() => Int)
@@ -37,25 +34,4 @@ export class RentApartment {
 
   @Field(() => String)
   parkingType: string;
-
-  @Field(() => String)
-  bargain: string;
-
-  @Field(() => String)
-  deposit: string;
-
-  @Field(() => String, { nullable: true })
-  agentFee?: string;
-
-  @Field(() => String, { nullable: true })
-  utilities?: string;
-
-  @Field(() => String)
-  adId: string;
-
-  @Field(() => Date)
-  createdAt: Date;
-
-  @Field(() => Date)
-  updatedAt: Date;
 }

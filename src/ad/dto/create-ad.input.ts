@@ -1,5 +1,7 @@
+// import { IsFieldsUnion } from "@/app/pipes/bb";
+// import { IsFieldsUnion } from "@/app/pipes/bb";
 import { Field, InputType, registerEnumType } from "@nestjs/graphql";
-import { AdTypes, PropertyDealTypes, PropertyTypes } from "@prisma/client";
+import { AdTypes, PropertyTypes } from "@prisma/client";
 import { Transform, Type } from "class-transformer";
 import {
   ArrayNotEmpty,
@@ -9,10 +11,10 @@ import {
   IsNumber,
   IsString,
   MinLength,
+  ValidateIf,
   ValidateNested,
 } from "class-validator";
-import { PriceScalar } from "./price";
-import { GraphQLJSONObject } from "graphql-type-json";
+import GraphQLJSON from "graphql-type-json";
 
 registerEnumType(AdTypes, {
   name: "AdTypes",
@@ -20,10 +22,6 @@ registerEnumType(AdTypes, {
 
 registerEnumType(PropertyTypes, {
   name: "PropertyTypes",
-});
-
-registerEnumType(PropertyDealTypes, {
-  name: "PropertyDealTypes",
 });
 
 @InputType()
@@ -46,34 +44,39 @@ export class LocationDto {
 }
 
 @InputType()
-export class DealInput {
-  @Field(() => PriceScalar)
-  @IsNumber()
-  price: number;
-
-  @Field(() => GraphQLJSONObject)
-  fields: object;
-}
-
-@InputType()
 export class ContactInput {
   @Field(() => String)
+  @IsString()
   name: string;
 
   @Field(() => String)
+  @IsString()
   email: string;
 
   @Field(() => String)
+  @IsString()
   phone: string;
 
   @Field(() => String)
+  @IsString()
   communication: string;
 }
 
 @InputType()
+export class DealInput {
+  @Field(() => Number)
+  @IsNumber()
+  price: number;
+
+  @Field(() => GraphQLJSON)
+  @ValidateIf(() => false)
+  fields: object;
+}
+
+@InputType()
 export class PropertyDetailsInput {
-  @Field(() => GraphQLJSONObject)
-  @ValidateNested()
+  @Field(() => GraphQLJSON)
+  @ValidateIf(() => false)
   fields: object;
 }
 
@@ -96,11 +99,10 @@ export class CreateAdInput {
   propertyType: PropertyTypes;
 
   @Field(() => String)
+  @IsString()
   title: string;
 
   @Field(() => PropertyDetailsInput)
-  @Type(() => PropertyDetailsInput)
-  @ValidateNested()
   propertyDetails: PropertyDetailsInput;
 
   @Field(() => DealInput)

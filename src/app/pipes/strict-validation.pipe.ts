@@ -23,13 +23,14 @@ export class StrictValidationPipe implements PipeTransform<any> {
 
     try {
       await validateOrReject(object, {
-        whitelist: true,
-        forbidNonWhitelisted: true,
+        whitelist: false,
+        forbidNonWhitelisted: false,
         transform: true,
       });
 
       return object;
     } catch (errors) {
+      console.error(JSON.stringify(errors, null, 2));
       this.logValidationErrors(errors as ValidationError[]);
       throw new BadRequestException("Validation failed");
     }
@@ -46,7 +47,6 @@ export class StrictValidationPipe implements PipeTransform<any> {
 
       if (error.constraints) {
         for (const constraint in error.constraints) {
-          console.log(error.constraints, "constraints");
           this.logger.warn(error.constraints[constraint], {
             property: propertyName,
             url: request?.url || "unknown",

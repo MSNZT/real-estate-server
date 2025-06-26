@@ -1,12 +1,14 @@
 import { Expose } from "class-transformer";
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsPositive, IsString } from "class-validator";
 
 export class HouseFieldsInput {
   @Expose()
   @IsNumber({}, { message: "Поле plotArea не может быть пустым" })
+  @IsPositive({ message: "Значение должно быть положительным" })
   plotArea: number;
 
   @Expose()
+  @IsPositive({ message: "Значение должно быть положительным" })
   @IsNumber({}, { message: 'Поле "plotHouse" должно быть числом' })
   plotHouse: number;
 
@@ -15,6 +17,7 @@ export class HouseFieldsInput {
   areaType: string;
 
   @Expose()
+  @IsPositive({ message: "Значение должно быть положительным" })
   @IsNumber({}, { message: "Поле totalFloor не может быть пустым" })
   totalFloor: number;
 

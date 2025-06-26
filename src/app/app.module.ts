@@ -15,6 +15,7 @@ import { HealthModule } from "@/health/health.module";
 import { HttpLogger } from "./common/logger/http.logger";
 import { WinstonConfig } from "./common/logger/winston.config";
 import { LoggerModule } from "./common/logger/logger.module";
+import { LocationModule } from "@/location/location.module";
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LoggerModule } from "./common/logger/logger.module";
     FileModule,
     FavoriteModule,
     HealthModule,
+    LocationModule,
   ],
   providers: [WinstonConfig],
 })

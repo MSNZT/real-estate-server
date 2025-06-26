@@ -104,9 +104,6 @@ type SyncFavorites {
   status: Boolean!
 }
 
-"""A custom scalar that validates and transforms price values"""
-scalar Price
-
 type Query {
   getAllAds(filters: AdFilterInput): AdsResponse!
   getAdById(id: ID!): Ad
@@ -166,17 +163,12 @@ input CreateAdInput {
 }
 
 input PropertyDetailsInput {
-  fields: JSONObject!
+  fields: JSON!
 }
 
-"""
-The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSONObject
-
 input DealInput {
-  price: Price!
-  fields: JSONObject!
+  price: Float!
+  fields: JSON!
 }
 
 input ContactInput {
@@ -205,10 +197,10 @@ input UpdateAdInput {
 }
 
 input UpdateDealInput {
-  price: Price
-  fields: JSONObject
+  price: Float
+  fields: JSON
 }
 
 input UpdatePropertyDetailsInput {
-  fields: JSONObject
+  fields: JSON
 }

@@ -1,5 +1,9 @@
 import { Field, InputType, PartialType } from "@nestjs/graphql";
-import { DealInput, LocationDto, PropertyDetailsInput } from "./createAdInput";
+import {
+  DealInput,
+  LocationDto,
+  PropertyDetailsInput,
+} from "./create-ad.input";
 import { AdTypes, PropertyTypes } from "@prisma/client";
 import {
   IsArray,

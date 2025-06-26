@@ -1,6 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { join } from "path";
-import { BadRequestException, Logger, ValidationPipe } from "@nestjs/common";
+import { ValidationPipe } from "@nestjs/common";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";
@@ -9,8 +9,8 @@ import { AppModule } from "./app/app.module";
 
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
-import { StrictValidationPipe } from "./app/pipes/strict-validation.pipe";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
+import { StrictValidationPipe } from "./app/pipes/strict-validation.pipe";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

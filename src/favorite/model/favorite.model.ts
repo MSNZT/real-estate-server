@@ -1,4 +1,4 @@
-import { Ad } from "@/ad/model/ad.model";
+import { Ad } from "@/ad/models/ad.model";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()

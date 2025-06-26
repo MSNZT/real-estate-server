@@ -1,16 +1,16 @@
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { AdService } from "./services/ad.service";
-import { Ad } from "./model/ad.model";
-import { CreateAdInput } from "./dto/createAdInput";
+import { AdService } from "./ad.service";
+import { Ad } from "./models/ad.model";
+import { CreateAdInput } from "./dto/create-ad.input";
 import { UseFilters, UseGuards } from "@nestjs/common";
-import { AdFilterInput } from "./dto/adFilterInput";
 import { UnauthorizedExceptionFilter } from "./filters/unauthorizedExceptionFilter";
 import { GqlAuthGuard } from "@/auth/guards/graphql-auth-guard";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
-import { UpdateAdInput } from "./dto/update.dto";
+import { UpdateAdInput } from "./dto/update-ad.input";
 import { GraphQLExceptionFilter } from "@/lib/filters/graphql-exception-filter";
-import { AdsResponse } from "./model/adsReponse";
+import { AdsResponse } from "./models/adsReponse";
+import { AdFilterInput } from "./dto/ad-filter.input";
 
 @UseFilters(UnauthorizedExceptionFilter)
 @UseFilters(GraphQLExceptionFilter)
