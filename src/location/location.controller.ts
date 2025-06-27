@@ -32,7 +32,4 @@ export class LocationController {
   async computeCityByIp(@Body() dto: ComputeCityDto) {
     return await this.locationService.computeCityByIp(dto);
   }
-
-  // @Post()
-  // async getSettlementByQuery()
 }

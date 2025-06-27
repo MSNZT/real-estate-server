@@ -37,21 +37,19 @@ export class BookingController {
   }
 
   @AuthJwt()
-  @Get("orders")
-  async getMyOrders(@CurrentUser() user: any) {
+  @Get("my")
+  async getMyOrders(@CurrentUser() user: Pick<User, "id">) {
     return await this.bookingService.getMyOrders(user.id as string);
   }
 
   @Post("calculate")
   async calculatePrice(@Body() dto: BookingCalculatePrice) {
-    console.log(dto);
-
     return await this.bookingService.calculatePrice(dto);
   }
 
   @AuthJwt()
   @Delete("cancel/:id")
-  async cancel(@Param("id") id: string, @CurrentUser() user: any) {
-    return await this.bookingService.cancelBooking(id, user);
+  async cancel(@Param("id") id: string, @CurrentUser() user: Pick<User, "id">) {
+    return await this.bookingService.cancelBooking(id, user.id);
   }
 }

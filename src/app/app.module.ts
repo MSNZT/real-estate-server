@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnModuleInit,
+} from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriverConfig } from "@nestjs/apollo";
@@ -35,8 +40,19 @@ import { LocationModule } from "@/location/location.module";
   ],
   providers: [WinstonConfig],
 })
-export class AppModule implements NestModule {
+export class AppModule implements NestModule, OnModuleInit {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(HttpLogger).forRoutes("*");
+  }
+  onModuleInit() {
+    setInterval(() => {
+      const memoryUsage = process.memoryUsage();
+      console.log({
+        rss: `${Math.round(memoryUsage.rss / 1024 / 1024)} MB`,
+        heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`,
+        heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`,
+        external: `${Math.round(memoryUsage.external / 1024 / 1024)} MB`,
+      });
+    }, 30 * 1000);
   }
 }

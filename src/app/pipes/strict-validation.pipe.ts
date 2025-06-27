@@ -23,8 +23,8 @@ export class StrictValidationPipe implements PipeTransform<any> {
 
     try {
       await validateOrReject(object, {
-        whitelist: false,
-        forbidNonWhitelisted: false,
+        whitelist: true,
+        forbidNonWhitelisted: true,
         transform: true,
       });
 

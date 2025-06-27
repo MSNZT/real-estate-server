@@ -296,9 +296,6 @@ export class AdService {
 
   private buildWhereClause(filter: AdFilterInput): Prisma.AdWhereInput {
     const conditions: Prisma.AdWhereInput[] = [];
-    console.log("conditio", filter);
-
-    console.log(filter);
 
     if (filter.ids) {
       conditions.push({

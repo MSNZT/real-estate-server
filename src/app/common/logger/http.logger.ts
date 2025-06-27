@@ -4,9 +4,10 @@ import { WinstonConfig } from "./winston.config";
 
 @Injectable()
 export class HttpLogger implements NestMiddleware {
-  private logger = this.winstonConfig.createLogger();
-
-  constructor(private readonly winstonConfig: WinstonConfig) {}
+  private logger;
+  constructor(private readonly winstonConfig: WinstonConfig) {
+    this.logger = this.winstonConfig.createLogger();
+  }
 
   use(req: Request, res: Response, next: NextFunction) {
     const start = Date.now();

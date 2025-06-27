@@ -121,6 +121,7 @@ export class BookingService {
           renterId: userId,
         },
         select: {
+          id: true,
           adId: true,
           startDate: true,
           endDate: true,
@@ -141,6 +142,7 @@ export class BookingService {
       if (orders.length > 0)
         return orders.map((order) => [
           {
+            id: order.id,
             orderTitle: getOrderTitle(
               order.ad.location.city,
               order.startDate,
@@ -157,15 +159,17 @@ export class BookingService {
     }
   }
 
-  async cancelBooking(adId: string, userId: string) {
+  async cancelBooking(id: string, userId: string) {
     try {
       const existBooking = await this.prismaService.booking.findFirst({
-        where: { adId },
+        where: { id },
       });
 
       if (!existBooking) {
         throw new NotFoundException("Бронирование не найдено");
       }
+
+      console.log(existBooking, userId);
 
       if (existBooking.renterId !== userId) {
         throw new ForbiddenException("Нет доступа для удаления бронирования");

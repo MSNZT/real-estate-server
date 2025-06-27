@@ -1,5 +1,3 @@
-// import { IsFieldsUnion } from "@/app/pipes/bb";
-// import { IsFieldsUnion } from "@/app/pipes/bb";
 import { Field, InputType, registerEnumType } from "@nestjs/graphql";
 import { AdTypes, PropertyTypes } from "@prisma/client";
 import { Transform, Type } from "class-transformer";
@@ -7,8 +5,10 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
+  IsJSON,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsString,
   MinLength,
   ValidateIf,
@@ -103,6 +103,8 @@ export class CreateAdInput {
   title: string;
 
   @Field(() => PropertyDetailsInput)
+  @Type(() => PropertyDetailsInput)
+  @ValidateNested()
   propertyDetails: PropertyDetailsInput;
 
   @Field(() => DealInput)

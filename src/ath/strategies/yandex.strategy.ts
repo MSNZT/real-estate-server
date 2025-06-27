@@ -12,7 +12,7 @@ export class YandexStrategy extends PassportStrategy(Strategy, "yandex") {
       clientID: configService.get("YANDEX_CLIENT_ID"),
       clientSecret: configService.get("YANDEX_CLIENT_SECRET"),
       callbackURL: `${configService.get("SERVER_URL")}/api/oauth/yandex/callback`,
-      scope: ["login:email", "login:info", "login:avatar"],
+      // scope: ["login:email", "login:info", "login:avatar"],
     });
   }
 
