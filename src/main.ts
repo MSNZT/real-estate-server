@@ -65,6 +65,7 @@ async function bootstrap() {
   app.use(passport.session());
 
   app.setGlobalPrefix("api");
+  // 3
 
   await app.listen(PORT, "0.0.0.0");
   console.log("Application is running on port: ", PORT);
