@@ -86,6 +86,12 @@ type AdsResponse {
   hasNextPage: Boolean!
 }
 
+type AdsByCategories {
+  adType: AdTypes!
+  propertyType: PropertyTypes!
+  ads: [Ad!]!
+}
+
 type ToggleFavoriteResponse {
   id: ID!
   status: String!
@@ -106,6 +112,7 @@ type SyncFavorites {
 
 type Query {
   getAllAds(filters: AdFilterInput): AdsResponse!
+  getAdsByCategories(data: AdsByCategoriesInput!): [AdsByCategories!]!
   getAdById(id: ID!): Ad
   getAdsByIds(ids: [String!]!): [Ad!]!
   getFavoriteAds: [FavoriteAd!]!
@@ -139,6 +146,17 @@ input PriceFilter {
 input LocationFilter {
   fields: JSON
   city: String
+}
+
+input AdsByCategoriesInput {
+  categories: [AdCategoryFilterInput!]!
+  limit: Int!
+}
+
+input AdCategoryFilterInput {
+  adType: String!
+  propertyType: String!
+  city: String!
 }
 
 type Mutation {

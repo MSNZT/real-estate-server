@@ -11,6 +11,8 @@ import { UpdateAdInput } from "./dto/update-ad.input";
 import { GraphQLExceptionFilter } from "@/lib/filters/graphql-exception-filter";
 import { AdsResponse } from "./models/adsReponse";
 import { AdFilterInput } from "./dto/ad-filter.input";
+import { AdsByCategoriesInput } from "./dto/ads-by-categories.input";
+import { AdsByCategories } from "./models/adsByCategoriesResponse";
 
 @UseFilters(UnauthorizedExceptionFilter)
 @UseFilters(GraphQLExceptionFilter)
@@ -24,6 +26,11 @@ export class AdResolver {
     filters?: AdFilterInput,
   ) {
     return await this.adService.getAll(filters);
+  }
+
+  @Query(() => [AdsByCategories], { name: "getAdsByCategories" })
+  async getAdsByCategories(@Args("data") categories: AdsByCategoriesInput) {
+    return await this.adService.getAdsByCategories(categories);
   }
 
   @UseGuards(GqlAuthGuard)

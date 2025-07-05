@@ -1,6 +1,5 @@
 import { NestFactory } from "@nestjs/core";
 import { join } from "path";
-import { ValidationPipe } from "@nestjs/common";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";

@@ -12,9 +12,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-.yarn/*
-!.yarn/releases
-!.yarn/install-state.gz
+.yarn
 
 # OS
 .DS_Store
@@ -22,6 +20,7 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+
 
 # IDEs and editors
 /.idea

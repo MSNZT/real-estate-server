@@ -14,7 +14,7 @@ export function IsPhoneNumber(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: string) {
-          return /^79\d{9}/.test(value);
+          return /^7\d{10}/.test(value);
         },
       },
     });

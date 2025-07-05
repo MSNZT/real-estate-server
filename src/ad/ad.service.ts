@@ -16,6 +16,8 @@ import { AdFilterInput } from "./dto/ad-filter.input";
 import { filterContact } from "./utils/filter-contact";
 import { mapPropertyDetailsFields } from "./map/property-details.map";
 import { mapDealFields } from "./map/deal.map";
+import { AdsByCategoriesInput } from "./dto/ads-by-categories.input";
+import { AdsByCategories } from "./models/adsByCategoriesResponse";
 
 @Injectable()
 export class AdService {
@@ -84,6 +86,12 @@ export class AdService {
     const where = this.buildWhereClause(filter);
     const queryOptions = this.getQueryOptions(filter);
 
+    const r = await this.prismaService.ad.findMany({
+      where: {
+        OR: [{}],
+      },
+    });
+
     try {
       return await this.prismaService.$transaction(async (prisma) => {
         const count = await prisma.ad.count();
@@ -116,6 +124,50 @@ export class AdService {
       });
     } catch (err) {
       throw err;
+    }
+  }
+
+  async getAdsByCategories({
+    categories,
+    limit,
+  }: AdsByCategoriesInput): Promise<AdsByCategories[]> {
+    try {
+      const ads = await this.prismaService.ad.findMany({
+        where: {
+          OR: categories.map((category) => ({
+            adType: category.adType,
+            propertyType: category.propertyType,
+            location: {
+              city: {
+                equals: category.city,
+                mode: "insensitive",
+              },
+            },
+          })),
+        },
+        include: {
+          location: true,
+          propertyDetails: true,
+          deal: true,
+          contact: true,
+          owner: true,
+        },
+        take: limit,
+        orderBy: {
+          id: "desc",
+        },
+      });
+      return categories.map((category) => ({
+        adType: category.adType,
+        propertyType: category.propertyType,
+        ads: ads.filter(
+          (ad) =>
+            ad.adType === category.adType &&
+            ad.propertyType === category.propertyType,
+        ),
+      }));
+    } catch (error) {
+      throw error;
     }
   }
 
