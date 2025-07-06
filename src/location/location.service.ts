@@ -7,7 +7,11 @@ import { ComputeCityResponse } from "./types/compute-city.types";
 import { ComputeLocationResponse } from "./response/compute-location.response";
 import { QueryDto } from "./dto/query.dto";
 import { CoordsDto } from "./dto/coords.dto";
-import { AddressSuggestionsResponse } from "./types/dadata.types";
+import {
+  AddressDetails,
+  AddressSuggestion,
+  AddressSuggestionsResponse,
+} from "./types/dadata.types";
 import { LocationResponse } from "./response/location.response";
 
 @Injectable()
@@ -82,7 +86,7 @@ export class LocationService {
         },
       );
       const data = (await response.json()) as AddressSuggestionsResponse;
-      return this.normalizeLocationData(data);
+      return this.normalizeAddressSuggestions(data);
     } catch (err) {
       this.logger.error(err);
       throw err;
@@ -108,7 +112,7 @@ export class LocationService {
         },
       );
       const data = (await response.json()) as AddressSuggestionsResponse;
-      return this.normalizeLocationData(data);
+      return this.normalizeAddressSuggestions(data);
     } catch (err) {
       this.logger.error(err);
       throw err;
@@ -132,27 +136,32 @@ export class LocationService {
         },
       );
       const data = (await response.json()) as AddressSuggestionsResponse;
-      console.log(data.suggestions[0].data);
-
-      return this.normalizeLocationData(data);
+      return this.normalizeAddressSuggestion(data.suggestions[0]);
     } catch (err) {
       this.logger.error(err);
       throw err;
     }
   }
 
-  private normalizeLocationData(
+  private normalizeAddressSuggestions(
     location: AddressSuggestionsResponse,
   ): LocationResponse[] {
-    return location.suggestions.map((item) => ({
-      value: item.value,
-      country: item.data.country,
-      city: item.data.city,
-      settlement: item.data.settlement_with_type,
-      geo_lat: item.data.geo_lat,
-      geo_lon: item.data.geo_lon,
-      street: item.data.street_with_type,
-      house: item.data.house,
-    }));
+    return location.suggestions.map(this.normalizeAddressSuggestion);
+  }
+
+  private normalizeAddressSuggestion(
+    location: AddressSuggestion,
+  ): LocationResponse {
+    console.log("object", location);
+    return {
+      value: location.value,
+      country: location.data.country,
+      city: location.data.city,
+      settlement: location.data.settlement_with_type,
+      geo_lat: location.data.geo_lat,
+      geo_lon: location.data.geo_lon,
+      street: location.data.street_with_type,
+      house: location.data.house,
+    };
   }
 }

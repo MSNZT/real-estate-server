@@ -20,11 +20,10 @@ export class LocationController {
     @Body() dto: SaveLocationDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log("buubbu", dto);
     res.cookie("location", JSON.stringify(dto), {
       secure: this.configService.getOrThrow("NODE_ENV") === "production",
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     return {
@@ -50,9 +49,7 @@ export class LocationController {
   }
 
   @Post("address-by-coords")
-  async getAddressByCoords(
-    @Body() dto: CoordsDto,
-  ): Promise<LocationResponse[]> {
+  async getAddressByCoords(@Body() dto: CoordsDto): Promise<LocationResponse> {
     return await this.locationService.getAddressByCoords(dto);
   }
 }

@@ -15,6 +15,7 @@ export class FileService {
     try {
       const filePath = join(this.uploadsDirPath, name);
       if (existsSync(filePath)) {
+        console.log(filePath);
         unlinkSync(filePath);
         return name;
       }
