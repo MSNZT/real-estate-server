@@ -121,6 +121,7 @@ export class LocationService {
 
   async getAddressByCoords(dto: CoordsDto) {
     try {
+      console.log("ENV", this.configService.get<string>("DADATA_API_KEY"));
       const response = await fetch(
         `https://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate/address`,
         {
