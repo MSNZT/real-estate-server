@@ -23,7 +23,10 @@ export class LocationController {
     res.cookie("location", JSON.stringify(dto), {
       secure: this.configService.getOrThrow("NODE_ENV") === "production",
       httpOnly: true,
-      sameSite: "none",
+      sameSite:
+        this.configService.getOrThrow("NODE_ENV") === "production"
+          ? "none"
+          : "lax",
     });
 
     return {

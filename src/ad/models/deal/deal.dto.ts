@@ -1,25 +1,18 @@
-import { Field, Int, ObjectType } from "@nestjs/graphql";
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsPositive,
-  IsString,
-} from "class-validator";
+import { IsBoolean, IsInt, IsNotEmpty, IsString, Min } from "class-validator";
 
 export class RentShortDealFieldsModel {
-  @IsNumber({}, { message: "Поле deposit не может быть пустым" })
-  @IsPositive({ message: "Значение должно быть положительным" })
+  @IsInt({ message: "Поле deposit не может быть пустым" })
+  @Min(0, { message: "Значение должно быть положительным или нулём" })
   deposit: number;
 }
 
 export class RentLongDealFieldsModel {
-  @IsNumber({}, { message: "Поле deposit не может быть пустым" })
-  @IsPositive({ message: "Значение должно быть положительным" })
+  @IsInt({ message: "Поле deposit не может быть пустым" })
+  @Min(0, { message: "Значение должно быть положительным или нулём" })
   deposit: number;
 
-  @IsPositive({ message: "Значение должно быть положительным" })
-  @IsNumber({}, { message: "Поле deposit не может быть пустым" })
+  @IsInt({ message: "Поле deposit не может быть пустым" })
+  @Min(0, { message: "Значение должно быть положительным или нулём" })
   agentFee: number;
 
   @IsString({ message: "Поле bargain обязательно для заполнения" })
@@ -30,8 +23,4 @@ export class RentLongDealFieldsModel {
 export class SellDealFieldsModel {
   @IsBoolean({ message: "Поле bargain должно содержать булево значение" })
   bargain: boolean;
-
-  @IsPositive({ message: "Значение должно быть положительным" })
-  @IsNumber({}, { message: "Поле deposit не может быть пустым" })
-  agentFee: number;
 }

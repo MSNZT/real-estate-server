@@ -12,6 +12,7 @@ export function setTokenToCookie(
     expires,
     secure: configService.getOrThrow("NODE_ENV") === "production",
     httpOnly: true,
-    sameSite: "none",
+    sameSite:
+      configService.getOrThrow("NODE_ENV") === "production" ? "none" : "lax",
   });
 }

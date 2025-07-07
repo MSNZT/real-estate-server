@@ -47,7 +47,13 @@ async function bootstrap() {
     origin: clientUrl,
     credentials: true,
     exposedHeaders: ["set-cookie"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Cookie",
+      "Set-Cookie",
+    ],
     methods: ["GET", "POST", "OPTIONS"],
   });
 
@@ -64,7 +70,6 @@ async function bootstrap() {
   app.use(passport.session());
 
   app.setGlobalPrefix("api");
-  // 3
 
   await app.listen(PORT, "0.0.0.0");
   console.log("Application is running on port: ", PORT);

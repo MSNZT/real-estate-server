@@ -10,6 +10,7 @@ export function removeTokenFromCookie(
     httpOnly: true,
     expires: new Date(0),
     secure: configService.getOrThrow("NODE_ENV") === "production",
-    sameSite: "none",
+    sameSite:
+      configService.getOrThrow("NODE_ENV") === "production" ? "none" : "lax",
   });
 }
