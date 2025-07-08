@@ -8,11 +8,15 @@ export function setTokenToCookie(
   expires: Date,
   configService: ConfigService,
 ) {
+  const isProduction = configService.getOrThrow("NODE_ENV") === "production";
   res.cookie(name, token, {
     expires,
-    secure: configService.getOrThrow("NODE_ENV") === "production",
+    secure: isProduction,
     httpOnly: true,
-    sameSite:
-      configService.getOrThrow("NODE_ENV") === "production" ? "none" : "lax",
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    domain: isProduction
+      ? configService.getOrThrow("CLIENT_URL").split("//")[1]
+      : undefined,
   });
 }

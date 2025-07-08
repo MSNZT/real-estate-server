@@ -20,13 +20,16 @@ export class LocationController {
     @Body() dto: SaveLocationDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const isProduction =
+      this.configService.getOrThrow("NODE_ENV") === "production";
     res.cookie("location", JSON.stringify(dto), {
-      secure: this.configService.getOrThrow("NODE_ENV") === "production",
+      secure: isProduction,
       httpOnly: true,
-      sameSite:
-        this.configService.getOrThrow("NODE_ENV") === "production"
-          ? "none"
-          : "lax",
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
+      domain: isProduction
+        ? this.configService.getOrThrow("CLIENT_URL").split("//")[1]
+        : undefined,
     });
 
     return {

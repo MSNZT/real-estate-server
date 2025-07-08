@@ -8,7 +8,6 @@ import { ComputeLocationResponse } from "./response/compute-location.response";
 import { QueryDto } from "./dto/query.dto";
 import { CoordsDto } from "./dto/coords.dto";
 import {
-  AddressDetails,
   AddressSuggestion,
   AddressSuggestionsResponse,
 } from "./types/dadata.types";

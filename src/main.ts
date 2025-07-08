@@ -1,4 +1,4 @@
-import { NestFactory } from "@nestjs/core";
+import { NestFactory, RouterModule } from "@nestjs/core";
 import { join } from "path";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
@@ -6,13 +6,20 @@ import * as session from "express-session";
 import * as passport from "passport";
 import { AppModule } from "./app/app.module";
 
-import { NestExpressApplication } from "@nestjs/platform-express";
+import {
+  ExpressAdapter,
+  NestExpressApplication,
+} from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { StrictValidationPipe } from "./app/pipes/strict-validation.pipe";
+import { INestApplication } from "@nestjs/common";
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    new ExpressAdapter(),
+  );
   const configService = app.get(ConfigService);
   const clientUrl = configService.getOrThrow("CLIENT_URL");
   const PORT = configService.get("PORT") || 3000;
@@ -62,7 +69,9 @@ async function bootstrap() {
       secret: "secret235345",
       resave: false,
       saveUninitialized: false,
-      cookie: { secure: false },
+      cookie: {
+        secure: configService.getOrThrow("NODE_ENV") === "production",
+      },
     }),
   );
 

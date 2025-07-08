@@ -97,7 +97,9 @@ export class CreateAdInput {
   propertyType: PropertyTypes;
 
   @Field(() => String)
-  @IsString()
+  @IsNotEmpty({ message: "Поле title не может быть пустым" })
+  @MinLength(8, { message: "Минимальное количество символов 8" })
+  @IsString({ message: "Поле title обязательно для заполнения" })
   title: string;
 
   @Field(() => PropertyDetailsInput)
@@ -116,20 +118,20 @@ export class CreateAdInput {
   contact: ContactInput;
 
   @Field(() => String)
-  @IsNotEmpty({ message: "Поле описание не может быть пустым" })
-  @MinLength(50, { message: "Минимальное количество символов 50" })
-  @IsString()
+  @IsNotEmpty({ message: "Поле description не может быть пустым" })
+  @MinLength(30, { message: "Минимальное количество символов 30" })
+  @IsString({ message: "Поле description обязательно для заполнения" })
   description: string;
 
   @Field(() => [String])
-  @IsArray()
-  @ArrayNotEmpty()
+  @IsArray({ message: "Поле features должен быть массивом" })
+  @ArrayNotEmpty({ message: "Массив features не может быть пустым" })
   @IsString({ each: true })
   features: string[];
 
   @Field(() => String)
   @IsNotEmpty({ message: "Поле mainPhoto не может быть пустым" })
-  @IsString()
+  @IsString({ message: "Поле mainPhoto обязательно для заполнения" })
   mainPhoto: string;
 
   @Field(() => [String])

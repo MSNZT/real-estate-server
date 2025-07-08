@@ -6,11 +6,15 @@ export function removeTokenFromCookie(
   name: string,
   configService: ConfigService,
 ) {
+  const isProduction = configService.getOrThrow("NODE_ENV") === "production";
   res.cookie(name, "", {
     httpOnly: true,
     expires: new Date(0),
-    secure: configService.getOrThrow("NODE_ENV") === "production",
-    sameSite:
-      configService.getOrThrow("NODE_ENV") === "production" ? "none" : "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    domain: isProduction
+      ? configService.getOrThrow("CLIENT_URL").split("//")[1]
+      : undefined,
   });
 }
