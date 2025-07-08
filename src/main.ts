@@ -2,8 +2,6 @@ import { NestFactory, RouterModule } from "@nestjs/core";
 import { join } from "path";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
-import * as session from "express-session";
-import * as passport from "passport";
 import { AppModule } from "./app/app.module";
 
 import {
@@ -53,30 +51,15 @@ async function bootstrap() {
   app.enableCors({
     origin: clientUrl,
     credentials: true,
-    exposedHeaders: ["set-cookie"],
+    exposedHeaders: ['Set-Cookie'],
     allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Cookie",
-      "Set-Cookie",
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Cookie',
     ],
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   });
-
-  app.use(
-    session({
-      secret: "secret235345",
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: configService.getOrThrow("NODE_ENV") === "production",
-      },
-    }),
-  );
-
-  app.use(passport.initialize());
-  app.use(passport.session());
 
   app.setGlobalPrefix("api");
 
