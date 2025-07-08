@@ -33,7 +33,7 @@ export class LocationController {
     });
 
     return {
-      status: "success",
+      status: "ok",
     };
   }
 
