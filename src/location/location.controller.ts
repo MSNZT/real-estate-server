@@ -1,7 +1,4 @@
 import { Body, Controller, Post, Res } from "@nestjs/common";
-import { SaveLocationDto } from "./dto/save-location.dto";
-import { Response } from "express";
-import { ConfigService } from "@nestjs/config";
 import { ComputeCityDto } from "./dto/compute-city.dto";
 import { LocationService } from "./location.service";
 import { CoordsDto } from "./dto/coords.dto";
@@ -10,32 +7,7 @@ import { LocationResponse } from "./response/location.response";
 
 @Controller("location")
 export class LocationController {
-  constructor(
-    private configService: ConfigService,
-    private locationService: LocationService,
-  ) {}
-
-  @Post("apply-location")
-  async saveLocationToCookie(
-    @Body() dto: SaveLocationDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const isProduction =
-      this.configService.getOrThrow("NODE_ENV") === "production";
-    res.cookie("location", JSON.stringify(dto), {
-      secure: isProduction,
-      httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      path: "/",
-      domain: isProduction
-        ? this.configService.getOrThrow("CLIENT_URL").split("//")[1]
-        : undefined,
-    });
-
-    return {
-      status: "ok",
-    };
-  }
+  constructor(private locationService: LocationService) {}
 
   @Post("compute-location")
   async computeLocationByIp(@Body() dto: ComputeCityDto) {

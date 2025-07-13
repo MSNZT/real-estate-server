@@ -4,7 +4,6 @@ import { Ad } from "./models/ad.model";
 import { CreateAdInput } from "./dto/create-ad.input";
 import { UseFilters, UseGuards } from "@nestjs/common";
 import { UnauthorizedExceptionFilter } from "./filters/unauthorizedExceptionFilter";
-import { GqlAuthGuard } from "@/auth/guards/graphql-auth-guard";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
 import { UpdateAdInput } from "./dto/update-ad.input";
@@ -13,6 +12,7 @@ import { AdsResponse } from "./models/adsReponse";
 import { AdFilterInput } from "./dto/ad-filter.input";
 import { AdsByCategoriesInput } from "./dto/ads-by-categories.input";
 import { AdsByCategories } from "./models/adsByCategoriesResponse";
+import { GqlAuthGuard } from "@/auth/guards/graphql-auth-guard";
 
 @UseFilters(UnauthorizedExceptionFilter)
 @UseFilters(GraphQLExceptionFilter)

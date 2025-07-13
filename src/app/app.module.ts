@@ -13,7 +13,7 @@ import { AdModule } from "@/ad/ad.module";
 import { BookingModule } from "@/booking/booking.module";
 import { FileModule } from "@/file/file.module";
 import { graphqlConfig } from "./config/graphql.config";
-import { AuthModule } from "@/ath/auth.module";
+import { AuthModule } from "@/auth/auth.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { FavoriteModule } from "@/favorite/favorite.module";
 import { HealthModule } from "@/health/health.module";

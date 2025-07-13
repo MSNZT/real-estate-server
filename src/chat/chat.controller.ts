@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Body, Query } from "@nestjs/common";
 import { ChatService } from "./chat.service";
-import { AuthJwt } from "@/ath/decorators/auth-jwt.decorator";
+import { AuthJwt } from "@/auth/decorators/auth-jwt.decorator";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
 import { UserDto } from "./dto/message.dto";

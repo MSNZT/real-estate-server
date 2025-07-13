@@ -22,8 +22,8 @@ import { ConfigService } from "@nestjs/config";
 import { AuthJwt } from "../decorators/auth-jwt.decorator";
 import { CurrentUser } from "@/user/decorators/current-user";
 import { User } from "@prisma/client";
-import { UserDto } from "@/auth/dto/response";
 import { Cookies } from "@/libs/decorators/cookies.decorator";
+import { UserDto } from "@/user/dto/user.dto";
 
 @Controller("auth")
 export class AuthController {

@@ -1,6 +1,6 @@
 // import { RegisterDto } from "@/auth/dto";
-import { RegisterDto } from "@/ath/dto/register.dto";
-import { ResetPasswordCodeDto } from "@/ath/dto/reset-password.dto";
+import { RegisterDto } from "@/auth/dto/register.dto";
+import { ResetPasswordCodeDto } from "@/auth/dto/reset-password.dto";
 import { Injectable } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { hash } from "bcrypt";

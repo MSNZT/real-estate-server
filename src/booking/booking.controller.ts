@@ -14,7 +14,7 @@ import { BookingService } from "./booking.service";
 import { BookingCreateDto } from "./dto/booking-create.dto";
 import { HttpExceptionFilter } from "@/errors/http-exception.filter";
 import { BookingCalculatePrice } from "./dto/calculatePrice.dto";
-import { AuthJwt } from "@/ath/decorators/auth-jwt.decorator";
+import { AuthJwt } from "@/auth/decorators/auth-jwt.decorator";
 
 @UseFilters(HttpExceptionFilter)
 @Controller("bookings")

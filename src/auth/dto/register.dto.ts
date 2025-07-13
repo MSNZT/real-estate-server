@@ -1,23 +1,20 @@
-import { IsEmail, IsOptional, IsString, MinLength } from "class-validator";
+import { IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsPhoneNumber } from "../validators/IsPhoneNumber";
+import { EmailDto } from "./base.dto";
 
-export class RegisterDto {
-  @IsString({ message: "Почта обязательна для заполнения" })
-  @IsEmail()
-  email: string;
-
-  @IsOptional()
-  @MinLength(4, { message: "Минимальная длина пароля 4 символа" })
-  @IsString()
-  password: string;
-
-  @IsString({ message: "Имя обязательно для заполнения" })
+export class RegisterDto extends EmailDto {
+  @IsString({ message: "Укажите имя" })
   name: string;
 
-  @IsString({ message: "Номер телефона обязательно для заполнения" })
+  @IsString({
+    message: "Номер телефона должен быть строкой",
+  })
+  @IsPhoneNumber({ message: "Укажите номер телефона в формате 79123456789" })
   phone: string;
-}
 
-export class RegisterCompletionDto {
-  @IsString({ message: "Номер телефона обязательно для заполнения" })
-  phone: string;
+  @IsString()
+  @IsOptional()
+  @MinLength(6, { message: "Минимальная длина пароля 6 символов" })
+  @MaxLength(20, { message: "Максимальная длина пароля 20 символов" })
+  password?: string;
 }

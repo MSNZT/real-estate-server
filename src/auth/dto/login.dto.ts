@@ -1,9 +1,7 @@
-import { IsEmail, IsString } from "class-validator";
+import { IsString } from "class-validator";
+import { EmailDto } from "./base.dto";
 
-export class LoginDto {
-  @IsEmail({}, { message: "Неверный формат почты" })
-  email: string;
-
-  @IsString({ message: "Поле пароль не может быть пустым" })
+export class LoginDto extends EmailDto {
+  @IsString({ message: "Укажите пароль" })
   password: string;
 }
