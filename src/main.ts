@@ -1,7 +1,9 @@
-import { NestFactory, RouterModule } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import { join } from "path";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
+import * as session from "express-session";
+import * as passport from "passport";
 import { AppModule } from "./app/app.module";
 
 import {
@@ -11,7 +13,6 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { StrictValidationPipe } from "./app/pipes/strict-validation.pipe";
-import { INestApplication } from "@nestjs/common";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -51,15 +52,30 @@ async function bootstrap() {
   app.enableCors({
     origin: clientUrl,
     credentials: true,
-    exposedHeaders: ['Set-Cookie'],
+    exposedHeaders: ["set-cookie"],
     allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Cookie',
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Cookie",
+      "Set-Cookie",
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ["GET", "POST", "OPTIONS"],
   });
+
+  app.use(
+    session({
+      secret: "secret235345",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: configService.getOrThrow("NODE_ENV") === "production",
+      },
+    }),
+  );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   app.setGlobalPrefix("api");
 
